@@ -76,14 +76,14 @@ namespace UnitTest1
 			}
 			
 		}
-		TEST_METHOD(TestGenerate2) {
+		TEST_METHOD(TestGenerate1_2) {
 			//generate medium sudoku
 			int lower = 10;
 			int upper = 20;
-			int number = 1;
-			int result[1][81];
+			int number = 10;
+			int result[10][81];
 			int solution[81];
-			sudoku.generate(1, lower, upper, true, result);
+			sudoku.generate(10, lower, upper, true, result);
 			for (int i = 0; i < number; ++i) {
 				Assert::AreEqual(sudoku.solve(result[i], solution), true);
 				int solutionNumber = sudoku.countSolutionNumber(result[i],2);
@@ -95,5 +95,34 @@ namespace UnitTest1
 				Assert::AreEqual(count <= upper && count >= lower, true);
 			}
 		}
+        TEST_METHOD(TestGenerate2) {
+            int result[10][81];
+            sudoku.generate(10, EASYMODE, result);
+            for (int i = 0; i < 10; ++i) {
+                int count = 0;
+                for (int j = 0; j < 81; ++j) {
+                    if (result[i][j] == 0) count++;
+                }
+                Assert::AreEqual(count <= EASYUPPER && count >= EASYLOWER, true);
+            }
+           
+            sudoku.generate(10, NORMALMODE, result);
+            for (int i = 0; i < 10; ++i) {
+                int count = 0;
+                for (int j = 0; j < 81; ++j) {
+                    if (result[i][j] == 0) count++;
+                }
+                Assert::AreEqual(count <= NORMALUPPER && count >= NORMALLOWER, true);
+            }
+           
+            sudoku.generate(10, HARDMODE, result);
+            for (int i = 0; i < 10; ++i) {
+                int count = 0;
+                for (int j = 0; j < 81; ++j) {
+                    if (result[i][j] == 0) count++;
+                }
+                Assert::AreEqual(count <= HARDUPPER && count >= HARDLOWER, true);
+            }
+        }
 	};
 }

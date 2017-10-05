@@ -12,6 +12,18 @@
 #define LEN 9
 #define RANDOMHOLES 0
 #define UPDOWNHOLES 1
+#define EASYMODE 1
+#define NORMALMODE 2
+#define HARDMODE 3
+
+enum ModeRange {
+    EASYLOWER = 35,
+    EASYUPPER = 45,
+    NORMALLOWER = 45,
+    NORMALUPPER = 55,
+    HARDLOWER = 55,
+    HARDUPPER = 64
+};
 
 using namespace std;
 long int Sudoku::count = 0;
@@ -118,7 +130,21 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
 }
 
 void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) {
-    
+    //@overview: generate puzzles with restriction of difficulty level
+    switch (mode) {
+    case EASYMODE:
+        generate(number, EASYLOWER, EASYUPPER, false, result);
+        break;
+    case NORMALMODE:
+        generate(number, NORMALLOWER, NORMALUPPER, false, result);
+        break;
+    case HARDMODE:
+        generate(number, HARDLOWER, HARDUPPER, false, result);
+        break;
+    default:
+        break;
+    }
+
 }
 
 void Sudoku::generateCompleteN(int number, int result[][LEN * LEN]) 
@@ -300,7 +326,6 @@ int Sudoku::countSolutionNumber(int puzzle[],int bound) {
 	@overview:count the solution number in puzzle and return it
 	*/
 	convertToTwoDimension(puzzle);
-    cout << toString() << endl;
 	int solutionNumber = 0;
 	trace_back_count_solution(1, 1,&solutionNumber,bound);
 	return solutionNumber;
@@ -313,7 +338,6 @@ void Sudoku::trace_back_count_solution(int i, int j,int* solutionNumber,int boun
 	*/
 	if (i == LEN && j == LEN + 1) {
 		(*solutionNumber)++;
-        cout << toString() << endl;
 		return;
 	}
 	if (i != LEN && j == LEN + 1) {
