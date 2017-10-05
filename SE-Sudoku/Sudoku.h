@@ -30,12 +30,13 @@ public:
 	inline char* toString();
 	void generate_output_n(int n, char* filename);
 	void set(char b[][LEN + 1]);
-	bool solve();
+	bool solve(int puzzle[], int solution[]);
+	void convertToTwoDimension(int puzzle[]);
+	void convertToOneDimension(int solution[]);
 	bool check();
 	bool check_pos(int i, int j);
 	bool check_generate_pos(int i, int j, int k);
 	bool check_solve_pos(int i, int j, int k);
-	void solve_and_output(InputHandler input, char* filename);
 };
 
 

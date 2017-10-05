@@ -65,32 +65,51 @@ void Sudoku::generate_output_n(int n, char* filename)
 }
 
 
-bool Sudoku::solve()
-{
+bool Sudoku::solve(int puzzle[], int solution[]) {
 	/*
-	@overview:solve a sudoku game in this board
+	@overview:solve sudoku in puzzle.save the outcome to solution
 	*/
+	bool ret;
+	convertToTwoDimension(puzzle);
+	
+	ret = trace_back_solve(1, 1);
 
-	//start from (1,1)
-	return trace_back_solve(1, 1);
+	convertToOneDimension(solution);
+
+	return ret;
 }
 
+void Sudoku::convertToTwoDimension(int puzzle[]) {
+	for (int i = 1; i <= LEN; ++i) {
+		for (int j = 1; j <= LEN; ++j) {
+			board[i][j] = puzzle[(i - 1)*LEN + (j - 1)] + '0';
+		}
+	}
+}
+
+void Sudoku::convertToOneDimension(int solution[]) {
+	for (int i = 1; i <= LEN; ++i) {
+		for (int j = 1; j <= LEN; ++j) {
+			solution[(i - 1)*LEN + (j - 1)] = board[i][j] - '0';
+		}
+	}
+}
+
+/*
 void Sudoku::solve_and_output(InputHandler input, char* filename)
 {
-	/*
-	@overview:solve sudoku in input.filename and output to file with filename
-	*/
+	
 	fstream infile(input.get_filename(), ios::in);
 	if (!infile.is_open()) Output::error(4);
 	char board[LEN + 1][LEN + 1];
 	while (input.get_board(infile, board)) {
 		set(board);
 		if (solve()) {
-			/*
+			
 			char* outcome = toString();
 			file << outcome;
 			delete outcome;
-			*/
+			
 			//below is fast code
 			toString();
 			//fast code end
@@ -109,7 +128,7 @@ void Sudoku::solve_and_output(InputHandler input, char* filename)
 	infile.close();
 	file.close();
 }
-
+*/
 //some useful method
 
 void Sudoku::set(char b[][LEN + 1])

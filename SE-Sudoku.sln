@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26730.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SE-Sudoku", "SE-Sudoku\SE-Sudoku.vcxproj", "{E2727FB4-6492-47F6-8E3D-39E419B6C464}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "UnitTest1", "UnitTest1\UnitTest1.vcxproj", "{1FB202FD-EFE0-4E8B-8A56-B8815698814E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{E2727FB4-6492-47F6-8E3D-39E419B6C464}.Release|x64.Build.0 = Release|x64
 		{E2727FB4-6492-47F6-8E3D-39E419B6C464}.Release|x86.ActiveCfg = Release|Win32
 		{E2727FB4-6492-47F6-8E3D-39E419B6C464}.Release|x86.Build.0 = Release|Win32
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Debug|x64.ActiveCfg = Debug|x64
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Debug|x64.Build.0 = Debug|x64
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Debug|x86.ActiveCfg = Debug|Win32
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Debug|x86.Build.0 = Debug|Win32
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Release|x64.ActiveCfg = Release|x64
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Release|x64.Build.0 = Release|x64
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Release|x86.ActiveCfg = Release|Win32
+		{1FB202FD-EFE0-4E8B-8A56-B8815698814E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
