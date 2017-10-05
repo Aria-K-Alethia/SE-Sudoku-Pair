@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "iostream"
 #include "Output.h"
+#include "time.h"
 
 using namespace std;
 /*
@@ -16,7 +17,6 @@ void Output::error(int code)
 	/*
 	@overview:showing error info on screen corresponding to the code.
 	*/
-
 	if (code == 1) cout << "Error code 1:bad number of parameters." << endl;
 	else if (code == 2) cout << "Error code 2:bad instruction.expect -c or -s" << endl;
 	else if (code == 3) cout << "Error code 3:bad number of instruction -c" << endl;

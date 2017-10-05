@@ -30,9 +30,12 @@ public:
 	inline char* toString();
 	void generate_output_n(int n, char* filename);
     void generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]);
+	void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]);
 	void generate(int number, int mode, int result[][LEN*LEN]);
 	void generateCompleteN(int number, int result[][LEN*LEN]);
 	void set(char b[][LEN + 1]);
+	int countSolutionNumber(int solution[],int bound);
+	void trace_back_count_solution(int i, int j, int* solutionNumber,int bound);
 	bool solve(int puzzle[], int solution[]);
 	void convertToTwoDimension(int puzzle[]);
 	void convertToOneDimension(int solution[]);

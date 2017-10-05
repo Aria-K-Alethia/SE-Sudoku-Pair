@@ -1,9 +1,10 @@
+#include "stdafx.h"
 #include "string"
 #include "fstream"
 #include <iostream>
 #include <ctime>
+#include <cstdlib>
 #include <memory>
-#include "stdafx.h"
 #include <cassert>
 #include "Sudoku.h"
 #include "Output.h"
@@ -51,21 +52,71 @@ Sudoku::Sudoku(Sudoku &b)
 //main method,including generate and solve method.
 
 void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) {
-    if (unique) {
-
+	//@overview: generate puzzles with restriction of count, uniqueness and hole range
+	generateCompleteN(number, result);
+	if (unique) {
+		digHoles(number, UPDOWNHOLES, lower, upper, result);
     } else {
-        generateCompleteN(number, result);
-
+		digHoles(number, RANDOMHOLES, lower, upper, result);
     }
 }
 
-void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]) {
-    if (mode == RANDOMHOLES) {
+void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]) {
+	//@overview: dig holes with choice of mode, randomly or sequently
+	//int seed = (unsigned int)time(NULL);
+	//srand(seed);
+	if (mode == RANDOMHOLES) { //Dig holes randomly
         for (int i = 0; i < count; i++) {
-            rand();
+			int holeCount = rand() % (upper - lower) + lower; //Select a hole count between lower & upper
+			for (int j = 0; j < holeCount;)
+			{
+				int location = rand() % 81;
+				if (result[i][location] != 0)
+				{
+					result[i][location] = 0;
+					j++; // New hole dug, go to next hole
+				}
+			}
         }
-    } else if (mode == UPDOWNHOLES) {
-
+    } else if (mode == UPDOWNHOLES) { //Dig holes from left to right, from up to down, unique answer restricted
+		for (int i = 0; i < count; i++)
+		{
+			int dugCount = 0;
+			int holeCount = rand() % (upper - lower) + lower;
+			for (int j = 0; j < LEN*LEN; j++) {
+				if (j == 0) {
+					dugCount++;
+					if (dugCount == holeCount)
+					{
+						break;
+					}
+					continue; // The first hole can always be right
+				}
+				int temp = result[i][j];
+				int k;
+				for (k = 1; k <= LEN; k++)
+				{
+					if (k == result[i][j]) {
+						continue;
+					}
+					result[i][j] = k; // Replace the original number with others from 1 to 9
+					int tempSudoku[LEN*LEN];
+					if (solve(result[i], tempSudoku)) { //Can find two solutions with this hole
+						result[i][j] = temp; // Can't dig, recover
+						break;
+					}
+				}
+				if (k > LEN)
+				{
+					result[i][j] = 0;
+					dugCount++;
+				}
+				if (dugCount == holeCount)
+				{
+					break;
+				}
+			}
+		}
     }
     
 }
@@ -78,7 +129,9 @@ void Sudoku::generateCompleteN(int number, int result[][LEN * LEN])
 {
 	//@overview:generate n sudoku 
 	//do some prepare
+	init();
 	trace_back_n(1, 1, number, result);
+	Sudoku::count = 0;
 }
 
 
@@ -242,6 +295,41 @@ bool Sudoku::check_pos(int i, int j)
 	return true;
 }
 
+int Sudoku::countSolutionNumber(int puzzle[],int bound) {
+	/*
+	@overview:count the solution number in puzzle and return it
+	*/
+	convertToTwoDimension(puzzle);
+	int solutionNumber = 0;
+	trace_back_count_solution(1, 1,&solutionNumber,bound);
+	return solutionNumber;
+}
+
+void Sudoku::trace_back_count_solution(int i, int j,int* solutionNumber,int bound) {
+	/*
+	@overview:trace back method for countSolutionNumber,save the solution
+	number in the pointer solutionNumber
+	*/
+	if (i == LEN && j == LEN + 1) {
+		(*solutionNumber)++;
+		return;
+	}
+	if (i != LEN && j == LEN + 1) {
+		i++;
+		j = 1;
+	}
+	if (board[i][j] != '0')
+		trace_back_count_solution(i, j + 1, solutionNumber,bound);
+	for (int k = 1; k <= LEN; k++) {
+		if (check_solve_pos(i, j, k)) {
+			board[i][j] = k + '0';
+			trace_back_count_solution(i, j + 1, solutionNumber,bound);
+			if (*solutionNumber >= bound) return;
+		}
+	}
+	board[i][j] = '0';
+	return;
+}
 
 //private method
 void Sudoku::init()
@@ -266,7 +354,7 @@ inline void Sudoku::trace_back_n(int i, int j, int n, int result[][LEN * LEN])
 {
 	//@overview:trace back method for generate_output_n method.
 	if (i == 9 && j == 10) {
-        Sudoku::convertToOneDimension(result[count]);
+        Sudoku::convertToOneDimension(result[Sudoku::count]);
 		Sudoku::count++;
 		//below is a fast code,if recover,delete it
 		if (Sudoku::count == n) {
