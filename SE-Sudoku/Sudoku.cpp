@@ -47,7 +47,11 @@ Sudoku::Sudoku(Sudoku &b)
 	}
 }
 //main method,including generate and solve method.
-void Sudoku::generate_output_n(int n, char* filename)
+
+void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) {
+
+}
+void Sudoku::generateCompleteN(int number)
 {
 	//@overview:generate n sudoku 
 	//do some prepare

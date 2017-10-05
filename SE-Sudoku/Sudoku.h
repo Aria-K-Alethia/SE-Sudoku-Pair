@@ -29,6 +29,8 @@ public:
 	Sudoku(Sudoku &b);
 	inline char* toString();
 	void generate_output_n(int n, char* filename);
+	void generate(int number, int mode, int result[][LEN*LEN]);
+	void generateCompleteN(int number);
 	void set(char b[][LEN + 1]);
 	bool solve(int puzzle[], int solution[]);
 	void convertToTwoDimension(int puzzle[]);
