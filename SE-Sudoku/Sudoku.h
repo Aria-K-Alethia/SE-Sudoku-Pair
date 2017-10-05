@@ -16,7 +16,7 @@ class Sudoku
 private:
 	char board[LEN + 1][LEN + 1];
 	void init();
-	inline void trace_back_n(int i, int j, int n, fstream& file);
+	inline void trace_back_n(int i, int j, int n, int result[][LEN * LEN]);
 	inline bool trace_back_solve(int i, int j);
 	inline int get_block(int i);
 	static long int count;
@@ -29,8 +29,9 @@ public:
 	Sudoku(Sudoku &b);
 	inline char* toString();
 	void generate_output_n(int n, char* filename);
+    void generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]);
 	void generate(int number, int mode, int result[][LEN*LEN]);
-	void generateCompleteN(int number);
+	void generateCompleteN(int number, int result[][LEN*LEN]);
 	void set(char b[][LEN + 1]);
 	bool solve(int puzzle[], int solution[]);
 	void convertToTwoDimension(int puzzle[]);

@@ -1,14 +1,16 @@
 #include "string"
 #include "fstream"
-#include "iostream"
-#include "memory.h"
+#include <iostream>
+#include <ctime>
+#include <memory>
 #include "stdafx.h"
-#include "assert.h"
+#include <cassert>
 #include "Sudoku.h"
 #include "Output.h"
 
-#define START 2
 #define LEN 9
+#define RANDOMHOLES 0
+#define UPDOWNHOLES 1
 
 using namespace std;
 long int Sudoku::count = 0;
@@ -48,24 +50,35 @@ Sudoku::Sudoku(Sudoku &b)
 }
 //main method,including generate and solve method.
 
-void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) {
+void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) {
+    if (unique) {
 
+    } else {
+        generateCompleteN(number, result);
+
+    }
 }
-void Sudoku::generateCompleteN(int number)
+
+void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]) {
+    if (mode == RANDOMHOLES) {
+        for (int i = 0; i < count; i++) {
+            rand();
+        }
+    } else if (mode == UPDOWNHOLES) {
+
+    }
+    
+}
+
+void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) {
+    
+}
+
+void Sudoku::generateCompleteN(int number, int result[][LEN * LEN]) 
 {
 	//@overview:generate n sudoku 
 	//do some prepare
-	assert(Sudoku::count == 0);
-	fstream file;
-	file.open(filename, ios::out);
-	if (file.is_open()) {
-		//start from (1,2) since START has been filled
-		trace_back_n(1, 2, n, file);
-	}
-	else
-		Output::error(4);
-	file.close();
-
+	trace_back_n(1, 1, number, result);
 }
 
 
@@ -239,7 +252,6 @@ void Sudoku::init()
 			board[i][j] = '0';
 		}
 	}
-	board[1][1] = START + '0';
 }
 
 inline int Sudoku::get_block(int i)
@@ -250,25 +262,15 @@ inline int Sudoku::get_block(int i)
 	return ((i - 1) / 3) * 3 + 1;
 }
 
-inline void Sudoku::trace_back_n(int i, int j, int n, fstream& file)
+inline void Sudoku::trace_back_n(int i, int j, int n, int result[][LEN * LEN])
 {
 	//@overview:trace back method for generate_output_n method.
 	if (i == 9 && j == 10) {
-		if (Sudoku::count >= n) return;
-		//if (!check()) Output::error(7);
-		/*
-		char* outcome = toString();
-		file << outcome;
-		delete[]outcome;
-		*/
-
+        Sudoku::convertToOneDimension(result[count]);
 		Sudoku::count++;
 		//below is a fast code,if recover,delete it
-		toString();
 		if (Sudoku::count == n) {
-			Sudoku::out[Sudoku::out_pos] = '\0';
-			file << Sudoku::out;
-			delete[] Sudoku::out;
+            return;
 		}
 		//fast code end
 		return;
@@ -282,7 +284,7 @@ inline void Sudoku::trace_back_n(int i, int j, int n, fstream& file)
 		if (Sudoku::count >= n) return;
 		if (check_generate_pos(i, j, k)) {   //check if it is ok to set k on (i,j)
 			board[i][j] = k + '0';
-			trace_back_n(i, j + 1, n, file);    //if can,recur to next place
+			trace_back_n(i, j + 1, n, result);    //if can,recur to next place
 		}
 	}
 	board[i][j] = '0';
