@@ -79,24 +79,22 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
 			}
         }
     } else if (mode == UPDOWNHOLES) { //Dig holes from left to right, from up to down, unique answer restricted
-		for (int i = 0; i < count; i++)
-		{
+		for (int i = 0; i < count; i++) {
 			int dugCount = 0;
 			int holeCount = rand() % (upper - lower) + lower;
 			for (int j = 0; j < LEN*LEN; j++) {
-				if (j == 0) {
+				if (j == 0) { // The first digging can always be right
+                    result[i][j] = 0;
 					dugCount++;
-					if (dugCount == holeCount)
-					{
+					if (dugCount == holeCount) {
 						break;
 					}
-					continue; // The first hole can always be right
+					continue; 
 				}
 				int temp = result[i][j];
 				int k;
-				for (k = 1; k <= LEN; k++)
-				{
-					if (k == result[i][j]) {
+				for (k = 1; k <= LEN; k++) { //Try replace the number with other numbers and solve
+					if (k == temp) {
 						continue;
 					}
 					result[i][j] = k; // Replace the original number with others from 1 to 9
@@ -106,13 +104,11 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
 						break;
 					}
 				}
-				if (k > LEN)
-				{
+				if (k > LEN) {
 					result[i][j] = 0;
 					dugCount++;
 				}
-				if (dugCount == holeCount)
-				{
+				if (dugCount == holeCount) {
 					break;
 				}
 			}
@@ -143,6 +139,10 @@ bool Sudoku::solve(int puzzle[], int solution[]) {
 	convertToTwoDimension(puzzle);
 	
 	ret = trace_back_solve(1, 1);
+
+    if (!check()) { // The sudoku is illegal
+        return false;
+    }
 
 	convertToOneDimension(solution);
 
@@ -212,7 +212,7 @@ void Sudoku::set(char b[][LEN + 1])
 	}
 }
 
-/*
+
 char* Sudoku::toString()
 {
 //@overview:turn the board into a standard string.
@@ -229,8 +229,8 @@ outcome[pos++] = '\n';
 outcome[pos] = '\0';
 return outcome;
 }
-*/
 
+/*
 //below is fast code
 inline char* Sudoku::toString()
 {
@@ -245,7 +245,7 @@ inline char* Sudoku::toString()
 	return NULL;
 }
 //fast code end
-
+*/
 bool Sudoku::check()
 {
 	//@overview:check if the whole sudoku is valid
@@ -300,6 +300,7 @@ int Sudoku::countSolutionNumber(int puzzle[],int bound) {
 	@overview:count the solution number in puzzle and return it
 	*/
 	convertToTwoDimension(puzzle);
+    cout << toString() << endl;
 	int solutionNumber = 0;
 	trace_back_count_solution(1, 1,&solutionNumber,bound);
 	return solutionNumber;
@@ -312,14 +313,17 @@ void Sudoku::trace_back_count_solution(int i, int j,int* solutionNumber,int boun
 	*/
 	if (i == LEN && j == LEN + 1) {
 		(*solutionNumber)++;
+        cout << toString() << endl;
 		return;
 	}
 	if (i != LEN && j == LEN + 1) {
 		i++;
 		j = 1;
 	}
-	if (board[i][j] != '0')
-		trace_back_count_solution(i, j + 1, solutionNumber,bound);
+    if (board[i][j] != '0') {
+        trace_back_count_solution(i, j + 1, solutionNumber, bound);
+        return;
+    }
 	for (int k = 1; k <= LEN; k++) {
 		if (check_solve_pos(i, j, k)) {
 			board[i][j] = k + '0';
