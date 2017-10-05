@@ -19,6 +19,10 @@ public:
 	int argc;
 	char** argv;
 	char mode;
+	int hardness;
+	int upper;
+	int lower;
+	bool unique;
 	char* filename;
 	int number;
 };

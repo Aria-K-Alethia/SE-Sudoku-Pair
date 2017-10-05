@@ -124,5 +124,8 @@ namespace UnitTest1
                 Assert::AreEqual(count <= HARDUPPER && count >= HARDLOWER, true);
             }
         }
+		TEST_METHOD(TestInputAnalyze) {
+			
+		}
 	};
 }
