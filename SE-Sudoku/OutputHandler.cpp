@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "OutputHandler.h"
 #include "Output.h"
+#include "Sudoku.h"
 
 
 OutputHandler::OutputHandler(Sudoku* sudoku) {

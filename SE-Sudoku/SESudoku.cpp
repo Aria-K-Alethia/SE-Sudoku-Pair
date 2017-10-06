@@ -27,12 +27,12 @@ int main(int argc, char* argv[])
 	int mode = input.get_mode();
 	int number = input.get_number();
 	char* inFileName = input.get_filename();
-	int Lower = input.getLower();
-	int Upper = 
+	int lower = input.getLower();
+    int upper = input.getUpper();
 	bool unique = input.getUnique();
 	int hardness = input.getHardness();
     
-    if (mode == 's') {
+    if (mode == 's') { // Handle mode -s
         fstream inFile;
         inFile.open(inFileName, ios::in);
         int board[LEN*LEN];
@@ -42,26 +42,33 @@ int main(int argc, char* argv[])
 			outputHandler.outputSudoku(outFileName);
 		}
     }
-	else if (mode == 'c') {
+	else if (mode == 'c') { // Handle mode -c
 		sudoku.generateCompleteN(number,result);
-		outputHandler.outputSudoku(input.get_number, result, outFileName);
+		outputHandler.outputSudoku(number, result, outFileName);
 	}
-	else if (mode == 'n') {
-		if (input.getUnique() && Lower() > 0 && input.getUpper() > 0) {
-			sudoku.generate(input.get_number, Lower(),
-				input.getUpper(), input.getUnique, result);
+	else if (mode == 'n') { // Handle mode -n
+        srand((unsigned)time(NULL));
+		if (unique && lower > 0 && upper > 0) { // Handle mode -r -u under -n
+			sudoku.generate(number, lower,
+				upper, unique, result);
 		}
-		else if (input.getUnique() && Lower() == 0 && input.getUpper() == 0) {
-			srand((unsigned)time(NULL));
-			int lower = rand() % 10 + 20;
-			int upper = lower + rand() % 20;
-			sudoku.generate(number, lower, upper, input.getUnique(), result);
+		else if (unique && lower == 0 && upper == 0) { // Handle mode -u under -n
+			int tempLower = rand() % 10 + 20;
+			int tempUpper = tempLower + rand() % 20;
+			sudoku.generate(number, tempLower, tempUpper, unique, result);
 		}
-		else if (!input.getUnique() && Lower() > 0 && input.getUpper() > 0) {
-			sudoku.generate(input.get_number, Lower(),
-				input.getUpper(), input.getUnique, result);
-		}
-		outputHandler.outputSudoku(input.get_number, result, outFileName);
+		else if (!unique && lower > 0 && upper > 0) { // Handle mode -r under -n
+			sudoku.generate(number, lower,
+				upper, unique, result);
+        } else if (hardness != 0){ //Handle mode -m under -n
+            sudoku.generate(number, hardness, result);
+        } else if (hardness == 0 && !unique && lower == 0 && upper == 0) { //Handle mode -n without any other parameter
+            int tempLower = rand() % 10 + 20;
+            int tempUpper = tempLower + rand() % 20;
+            sudoku.generate(number, tempLower, tempUpper, unique, result);
+        }
+
+		outputHandler.outputSudoku(number, result, outFileName);
 	}
 
     
