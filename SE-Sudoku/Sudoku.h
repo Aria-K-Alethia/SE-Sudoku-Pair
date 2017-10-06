@@ -3,6 +3,8 @@
 #include "fstream"
 #include "string"
 #include "InputHandler.h"
+#include <exception>
+
 #define LEN 9
 
 using namespace std;
@@ -46,4 +48,27 @@ public:
 	bool check_solve_pos(int i, int j, int k);
 };
 
+class IllegalLengthException :public exception {
+public:
+    const char* what() const throw();
+};
 
+class SudokuCountException :public exception {
+public:
+    const char* what() const throw();
+};
+
+class ResultRowTooFewException :public exception {
+public:
+    const char* what() const throw();
+};
+
+class LowerUpperException :public exception {
+public:
+    const char* what() const throw();
+};
+
+class ModeRangeException :public exception {
+public:
+    const char* what() const throw();
+};

@@ -64,17 +64,18 @@ Sudoku::Sudoku(Sudoku &b)
 }
 //main method,including generate and solve method.
 
-void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) {
+void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) throw(SudokuCountException, 
+    ResultRowTooFewException, LowerUpperException) {
 	//@overview: generate puzzles with restriction of count, uniqueness and hole range
 
 	if (number > 10000 || number < 1) {
-		Output::error(8);
+		throw SudokuCountException();
 	}
 	if (number > sizeof(result) / (81 * sizeof(int))) {
-		Output::error(15);
+		throw ResultRowTooFewException();
 	}
 	if (lower < 20 || upper > 55 || lower > upper) {
-		Output::error(16);
+		throw LowerUpperException();
 	}
 
 
@@ -142,17 +143,18 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
     
 }
 
-void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) {
+void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) throw(SudokuCountException,
+    ResultRowTooFewException, ModeRangeException){
     //@overview: generate puzzles with restriction of difficulty level
 
 	if (number > 10000 || number < 1) {
-		Output::error(8);
+		throw SudokuCountException();
 	}
 	if (number > sizeof(result) / (81 * sizeof(int))) {
-		Output::error(15);
+		throw ResultRowTooFewException();
 	}
 	if (mode < EASYMODE || mode > HARDMODE) {
-		Output::error(17);
+		throw ModeRangeException();
 	}
     switch (mode) {
     case EASYMODE:
@@ -214,13 +216,13 @@ void Sudoku::trace_back_write_file(int i,int j,int number, fstream& outFile) {
 	board[i][j] = '0';
 }
 
-bool Sudoku::solve(int puzzle[], int solution[]) {
+bool Sudoku::solve(int puzzle[], int solution[]) throw(IllegalLengthException){
 	/*
 	@overview:solve sudoku in puzzle.save the outcome to solution
 	*/
 	bool ret;
 	if (sizeof(puzzle)/sizeof(int) != 81 || sizeof(solution)/sizeof(int) != 81) {
-		Output::error(7);
+		throw IllegalLengthException();
 	}
 	convertToTwoDimension(puzzle);
 	
@@ -546,4 +548,24 @@ bool Sudoku::check_solve_pos(int i, int j, int k)
 	}
 
 	return true;
+}
+
+const char * IllegalLengthException::what() const throw() {
+    return "IllegalLengthException: The length of puzzle or solution in solve(puzzle,solution) must be 81";
+}
+
+const char * SudokuCountException::what() const throw() {
+    return "SudokuCountException: Number in generate(int number,int lower,int upper,bool unique,int result[][]) must in[1,10000]";
+}
+
+const char * ResultRowTooFewException::what() const throw() {
+    return "ResultRowTooFewException: The row of result array must be greater than number";
+}
+
+const char * LowerUpperException::what() const throw() {
+    return "LowerUpperException: The lower and upper in generate(int number,int lower,int upper,bool unique,int result[][]) must satisfy:lower<upper,lower > 20,upper < 55";
+}
+
+const char * ModeRangeException::what() const throw() {
+    return "ModeRangeException: The number of mode must in [1,3]";
 }
