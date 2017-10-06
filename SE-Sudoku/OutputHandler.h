@@ -1,5 +1,10 @@
 #pragma once
-#include "stdafx.h"
+#include <fstream>
+#include "Sudoku.h"
+#define LEN 9
+using namespace std;
+//class Sudoku;
+class OutputHandler;
 
 
 class OutputHandler {

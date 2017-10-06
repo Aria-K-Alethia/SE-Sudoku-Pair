@@ -1,7 +1,13 @@
 #include "stdafx.h"
-
+#include "InputHandler.h"
+#include "Sudoku.h"
+#include "OutputHandler.h"
+#include "Output.h"
 using namespace std;
+
+
 #define MAXSUDOKU 10000
+#define LEN 9
 
 
 int main(int argc, char* argv[])
@@ -34,7 +40,7 @@ int main(int argc, char* argv[])
 		outFile.close();
     }
 	else if (mode == 'c') { // Handle mode -c
-		sudoku.generateCompleteN_And_Output(number,outFileName);
+		sudoku.generateCompleteNAndOutput(number,outFileName);
 	}
 	else if (mode == 'n') { // Handle mode -n
         srand((unsigned)time(NULL));

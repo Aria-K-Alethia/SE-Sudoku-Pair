@@ -1,17 +1,29 @@
 #pragma once
 #include "stdafx.h"
 #include "fstream"
-#include "string"
-#include "InputHandler.h"
-#include <exception>
-
-#define LEN 9
-
+#include "exception"
+#include "cassert"
+#include "time.h"
 using namespace std;
 
 /*
 @overview:The Sudoku class a mutable.It has a sudoku board of size 9x9 and can generate or solve a sudoku
 */
+#define LEN 9
+#define RANDOMHOLES 0
+#define UPDOWNHOLES 1
+#define EASYMODE 1
+#define NORMALMODE 2
+#define HARDMODE 3
+
+enum ModeRange {
+	EASYLOWER = 35,
+	EASYUPPER = 45,
+	NORMALLOWER = 45,
+	NORMALUPPER = 55,
+	HARDLOWER = 55,
+	HARDUPPER = 64
+};
 
 class Sudoku
 {
@@ -34,7 +46,7 @@ public:
 	void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]);
 	void generate(int number, int mode, int result[][LEN*LEN]);
 	void generateCompleteN(int number, int result[][LEN*LEN]);
-	void generateCompleteN_And_Output(int number, char * filename);
+	void generateCompleteNAndOutput(int number, char * filename);
 	void trace_back_write_file(int i,int j,int number, fstream& outFile);
 	void set(char b[][LEN + 1]);
 	int countSolutionNumber(int solution[],int bound);

@@ -1,29 +1,7 @@
 #include "stdafx.h"
-#include "string"
-#include "fstream"
-#include <iostream>
-#include <ctime>
-#include <cstdlib>
-#include <memory>
-#include <cassert>
 #include "Sudoku.h"
-#include "Output.h"
 
-#define LEN 9
-#define RANDOMHOLES 0
-#define UPDOWNHOLES 1
-#define EASYMODE 1
-#define NORMALMODE 2
-#define HARDMODE 3
 
-enum ModeRange {
-    EASYLOWER = 35,
-    EASYUPPER = 45,
-    NORMALLOWER = 45,
-    NORMALUPPER = 55,
-    HARDLOWER = 55,
-    HARDUPPER = 64
-};
 
 using namespace std;
 long int Sudoku::count = 0;
@@ -65,15 +43,16 @@ Sudoku::Sudoku(Sudoku &b)
 //main method,including generate and solve method.
 
 void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) throw(SudokuCountException, 
-    ResultRowTooFewException, LowerUpperException) {
+    //ResultRowTooFewException, 
+	LowerUpperException) {
 	//@overview: generate puzzles with restriction of count, uniqueness and hole range
 
 	if (number > 10000 || number < 1) {
 		throw SudokuCountException();
 	}
-	if (number > sizeof(result) / (81 * sizeof(int))) {
+	/*if (number > sizeof(result) / (81 * sizeof(int))) {
 		throw ResultRowTooFewException();
-	}
+	}*/
 	if (lower < 20 || upper > 55 || lower > upper) {
 		throw LowerUpperException();
 	}
@@ -144,15 +123,16 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
 }
 
 void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) throw(SudokuCountException,
-    ResultRowTooFewException, ModeRangeException){
+    //ResultRowTooFewException,
+	 ModeRangeException){
     //@overview: generate puzzles with restriction of difficulty level
 
 	if (number > 10000 || number < 1) {
 		throw SudokuCountException();
 	}
-	if (number > sizeof(result) / (81 * sizeof(int))) {
+	/*if (number > sizeof(result) / (LEN * LEN * sizeof(int))) {
 		throw ResultRowTooFewException();
-	}
+	}*/
 	if (mode < EASYMODE || mode > HARDMODE) {
 		throw ModeRangeException();
 	}
@@ -182,7 +162,7 @@ void Sudoku::generateCompleteN(int number, int result[][LEN * LEN])
 	
 }
 
-void Sudoku::generateCompleteN_And_Output(int number, char* filename) {
+void Sudoku::generateCompleteNAndOutput(int number, char* filename) {
 	/*
 		@overview:generate number complete sudoku for -c in file with filename
 	*/
@@ -221,9 +201,11 @@ bool Sudoku::solve(int puzzle[], int solution[]) throw(IllegalLengthException){
 	@overview:solve sudoku in puzzle.save the outcome to solution
 	*/
 	bool ret;
-	if (sizeof(puzzle)/sizeof(int) != 81 || sizeof(solution)/sizeof(int) != 81) {
+	/*if ((sizeof(puzzle)/sizeof(int) - LEN*LEN != 0)|| (sizeof(solution)/sizeof(int) - LEN*LEN != 0)) {
 		throw IllegalLengthException();
 	}
+	*/
+
 	convertToTwoDimension(puzzle);
 	
 	ret = trace_back_solve(1, 1);

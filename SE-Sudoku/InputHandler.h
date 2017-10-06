@@ -1,7 +1,10 @@
 #pragma once
 #include "fstream"
+#include "regex"
+#include "sstream"
 using namespace std;
 #define LEN 9
+
 /*
 @overview:The InputHandler is mutable.This class is used to processing the input and save necessary info.
 */

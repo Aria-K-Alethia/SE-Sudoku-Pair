@@ -1,16 +1,11 @@
 #include "stdafx.h"
 #include "InputHandler.h"
-#include "regex"
 #include "Output.h"
-#include "string"
-#include "sstream"
-#include "ctype.h"
-#include "iostream"
-
-#define MAXPUZZLECOUNT
-
 using namespace std;
-#define LEN 9
+
+
+
+
 /*
 @overview:this file implement the class InputHandler in InputHandler.h
 */

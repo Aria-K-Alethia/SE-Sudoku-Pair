@@ -1,16 +1,4 @@
 #pragma once
 #include "targetver.h"
-#include <stdio.h>
-#include <tchar.h>
-#include "iostream"
-#include "fstream"
-#include "string"
-#include "memory.h"
-#include "fstream"
-#include "Sudoku.h"
-#include "InputHandler.h"
-#include "time.h"
-#include "regex"
-#include "sstream"
-#include "Output.h"
-#include "OutputHandler.h"
+
+

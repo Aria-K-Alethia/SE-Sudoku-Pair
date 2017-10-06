@@ -1,7 +1,5 @@
 #include "stdafx.h"
-#include "iostream"
 #include "Output.h"
-#include "time.h"
 
 using namespace std;
 /*
