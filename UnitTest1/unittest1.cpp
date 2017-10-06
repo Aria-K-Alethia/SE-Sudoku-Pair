@@ -125,7 +125,18 @@ namespace UnitTest1
             }
         }
 		TEST_METHOD(TestInputAnalyze) {
-			
+			int result[1][81];
+			bool exceptionThrown = false;
+			try { // Test first SudokuCountException
+				sudoku.generate(-1, 1, result);
+			}
+			catch (SudokuCountException& e) {
+				exceptionThrown = true;
+			}
+			Assert::IsTrue(exceptionThrown);
+
+			exceptionThrown = false;
+
 		}
 	};
 }
