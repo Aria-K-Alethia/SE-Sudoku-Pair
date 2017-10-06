@@ -13,7 +13,7 @@ public:
 	char get_mode();
 	char* get_filename();
 	int get_number();
-	bool get_board(fstream &file, char board[][LEN + 1]);
+	bool get_board(fstream &file, int board[LEN * LEN]);
 
 	//private:
 	int argc;

@@ -18,18 +18,22 @@ int main(int argc, char* argv[])
 {
 	InputHandler input(argc,argv);
 	input.analyze();
+	Sudoku sudoku;
+	OutputHandler outputHandler = OutputHandler(&sudoku);
+	char* outFileName = "sudoku.txt";
     
     if (input.get_mode() == 's') {
         fstream inFile;
+		fstream outFile;
+		fstream outFile;
         inFile.open(input.get_filename, ios::in);
         int board[LEN*LEN];
-        input.get_board(inFile, board);
-        Sudoku sudoku;
-        int solution[LEN*LEN];
-        sudoku.solve(board, solution);
-        fstream outFile;
-        outFile.open("sudoku.txt", ios::out);
-        OutputHandler outputHandler = OutputHandler(&sudoku);
+		int solution[LEN*LEN];
+		while (input.get_board(inFile, board)) {
+			sudoku.solve(board, solution);
+			outFile.open(outFileName, ios::out);
+		}
+        
         outputHandler.outputSudoku
     }
     

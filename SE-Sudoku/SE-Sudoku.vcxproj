@@ -149,6 +149,7 @@
   <ItemGroup>
     <ClInclude Include="InputHandler.h" />
     <ClInclude Include="Output.h" />
+    <ClInclude Include="OutputHandler.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Sudoku.h" />
     <ClInclude Include="targetver.h" />
@@ -156,6 +157,7 @@
   <ItemGroup>
     <ClCompile Include="InputHandler.cpp" />
     <ClCompile Include="Output.cpp" />
+    <ClCompile Include="OutputHandler.cpp" />
     <ClCompile Include="SESudoku.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

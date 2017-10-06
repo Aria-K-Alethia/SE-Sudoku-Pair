@@ -165,7 +165,7 @@ bool InputHandler::get_board(fstream &file, int board[LEN*LEN])
 		}
 		for (int k = 0; (unsigned)k < s.length(); ++k) {
 			if (!isspace(s[k])) {
-				board[j] = s[k];
+				board[j] = s[k] - '0';
 				++j;
 			}
 		}
