@@ -75,8 +75,8 @@ void Sudoku::generate(int number, int lower, int upper, bool unique, int result[
 
 void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]) {
 	//@overview: dig holes with choice of mode, randomly or sequently
-	//int seed = (unsigned int)time(NULL);
-	//srand(seed);
+	int seed = (unsigned int)time(NULL);
+	srand(seed);
 	if (mode == RANDOMHOLES) { //Dig holes randomly
         for (int i = 0; i < count; i++) {
 			int holeCount = rand() % (upper - lower) + lower; //Select a hole count between lower & upper

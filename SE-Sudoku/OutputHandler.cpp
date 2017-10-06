@@ -21,5 +21,14 @@ void OutputHandler::outputSudoku(int count, int result[][LEN*LEN], char* filenam
     file.close();
 }
 
+void OutputHandler::outputSudoku(char* outFileName) {
+	/*
+		@overview:output one sudoku in its board to outFile with outFile name
+	*/
+	fstream outFile(outFileName, ios::out);
+	outFile << sudoku->toString();
+	outFile.close();
+}
+
 OutputHandler::~OutputHandler() {
 }

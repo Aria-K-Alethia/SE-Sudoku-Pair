@@ -28,7 +28,6 @@ public:
 	Sudoku(char **b);
 	Sudoku(Sudoku &b);
 	inline char* toString();
-	void generate_output_n(int n, char* filename);
     void generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]);
 	void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]);
 	void generate(int number, int mode, int result[][LEN*LEN]);

@@ -14,6 +14,10 @@ public:
 	char* get_filename();
 	int get_number();
 	bool get_board(fstream &file, int board[LEN * LEN]);
+	int getUpper();
+	int getLower();
+	bool getUnique();
+	int getHardness();
 
 	//private:
 	int argc;

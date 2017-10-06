@@ -146,6 +146,39 @@ int InputHandler::get_number()
 	return number;
 }
 
+int InputHandler::getUpper()
+{
+	/*
+	@overview:getter of upper
+	*/
+
+	return upper;
+}
+int InputHandler::getLower()
+{
+	/*
+	@overview:getter of lower
+	*/
+
+	return lower;
+}
+int InputHandler::getHardness()
+{
+	/*
+	@overview:getter of hardness
+	*/
+
+	return hardness;
+}
+bool InputHandler::getUnique()
+{
+	/*
+	@overview:getter of unique
+	*/
+
+	return unique;
+}
+
 bool InputHandler::get_board(fstream &file, int board[LEN*LEN])
 {
 	/*
