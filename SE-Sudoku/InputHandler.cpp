@@ -46,7 +46,7 @@ void InputHandler::analyze()
 				mode = param[i][1];
 			}
 		}
-		if (mode != 'n') Output::error(8);
+		if (mode != 'n') Output::error(2);
 		hardness = 0;
 		unique = false;
 		upper = 0;

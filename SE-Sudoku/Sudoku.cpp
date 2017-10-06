@@ -66,6 +66,18 @@ Sudoku::Sudoku(Sudoku &b)
 
 void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) {
 	//@overview: generate puzzles with restriction of count, uniqueness and hole range
+
+	if (number > 10000 || number < 1) {
+		Output::error(8);
+	}
+	if (number > sizeof(result) / (81 * sizeof(int))) {
+		Output::error(15);
+	}
+	if (lower < 20 || upper > 55 || lower > upper) {
+		Output::error(16);
+	}
+
+
 	generateCompleteN(number, result);
 	if (unique) {
 		digHoles(number, UPDOWNHOLES, lower, upper, result);
@@ -132,6 +144,16 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
 
 void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) {
     //@overview: generate puzzles with restriction of difficulty level
+
+	if (number > 10000 || number < 1) {
+		Output::error(8);
+	}
+	if (number > sizeof(result) / (81 * sizeof(int))) {
+		Output::error(15);
+	}
+	if (mode < EASYMODE || mode > HARDMODE) {
+		Output::error(17);
+	}
     switch (mode) {
     case EASYMODE:
         generate(number, EASYLOWER, EASYUPPER, false, result);
@@ -197,6 +219,9 @@ bool Sudoku::solve(int puzzle[], int solution[]) {
 	@overview:solve sudoku in puzzle.save the outcome to solution
 	*/
 	bool ret;
+	if (sizeof(puzzle)/sizeof(int) != 81 || sizeof(solution)/sizeof(int) != 81) {
+		Output::error(7);
+	}
 	convertToTwoDimension(puzzle);
 	
 	ret = trace_back_solve(1, 1);

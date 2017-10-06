@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
         int board[LEN*LEN];
 		int solution[LEN*LEN];
 		while (input.get_board(inFile, board)) {
-			sudoku.solve(board, solution);
+			if (!sudoku.solve(board, solution)) Output::error(6);
 			outputHandler.outputSudoku(outFile);
 		}
 		outFile.close();
