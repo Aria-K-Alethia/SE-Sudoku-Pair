@@ -27,10 +27,11 @@ enum ModeRange {
 
 using namespace std;
 long int Sudoku::count = 0;
-//below is fast code
+/*below is fast code
 char* Sudoku::out = new char[163 * 1000000 + 1];
 long int Sudoku::out_pos = 0;
-//fast code end
+fast code end
+*/
 /*
 @overview:this file implement the class Sudoku in Sudoku.h
 */
@@ -152,10 +153,44 @@ void Sudoku::generateCompleteN(int number, int result[][LEN * LEN])
 	//@overview:generate n sudoku 
 	//do some prepare
 	init();
-	trace_back_n(1, 1, number, result);
 	Sudoku::count = 0;
+	trace_back_n(1, 1, number, result);
+	
 }
 
+void Sudoku::generateCompleteN_And_Output(int number, char* filename) {
+	/*
+		@overview:generate number complete sudoku for -c in file with filename
+	*/
+	fstream outFile(filename, ios::out);
+	Sudoku::count = 0;
+	trace_back_write_file(1, 1, number, outFile);
+	outFile.close();
+}
+
+void Sudoku::trace_back_write_file(int i,int j,int number, fstream& outFile) {
+	/*
+		@overview:trace back method for generateCompleteN_And_Output
+	*/
+	if (i == 9 && j == 10) {
+		Sudoku::count++;
+		outFile << toString();
+		return;
+	}
+	if (i != 9 && j == 10) {
+		++i;
+		j = 1;
+	}
+
+	for (int k = 1; k <= LEN; ++k) {
+		if (Sudoku::count >= number) return;
+		if (check_generate_pos(i, j, k)) {   //check if it is ok to set k on (i,j)
+			board[i][j] = k + '0';
+			trace_back_write_file(i, j + 1, number, outFile);    //if can,recur to next place
+		}
+	}
+	board[i][j] = '0';
+}
 
 bool Sudoku::solve(int puzzle[], int solution[]) {
 	/*
@@ -242,18 +277,18 @@ void Sudoku::set(char b[][LEN + 1])
 char* Sudoku::toString()
 {
 //@overview:turn the board into a standard string.
-char*outcome = new char[200];
-int pos=0;
-for (int i = 1; i <= LEN ; ++i) {
-for (int j = 1; j <= LEN ; ++j) {
-outcome[pos++] = board[i][j];
-if (j != LEN) outcome[pos++] = ' ';
-}
-outcome[pos++] = '\n';
-}
-outcome[pos++] = '\n';
-outcome[pos] = '\0';
-return outcome;
+	char*outcome = new char[200];
+	int pos=0;
+	for (int i = 1; i <= LEN ; ++i) {
+		for (int j = 1; j <= LEN ; ++j) {
+			outcome[pos++] = board[i][j];
+			if (j != LEN) outcome[pos++] = ' ';
+		}
+		outcome[pos++] = '\n';
+	}
+	outcome[pos++] = '\n';
+	outcome[pos] = '\0';
+	return outcome;
 }
 
 /*
@@ -416,7 +451,9 @@ inline bool Sudoku::trace_back_solve(int i, int j)
 		j = 1;
 		++i;
 	}
-	if (board[i][j] != '0') return trace_back_solve(i, j + 1);
+	if (board[i][j] != '0') {
+		return trace_back_solve(i, j + 1);
+	}
 	bool outcome;
 	for (int k = 1; k <= LEN; ++k) {
 		if (check_solve_pos(i, j, k)) {

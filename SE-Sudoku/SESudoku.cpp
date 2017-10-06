@@ -1,18 +1,7 @@
 #include "stdafx.h"
-#include "iostream"
-#include "fstream"
-#include "string"
-#include "memory.h"
-#include "fstream"
-#include "Sudoku.h"
-#include "InputHandler.h"
-#include "time.h"
-#include "regex"
-#include "sstream"
-#include "Output.h"
-#include "OutputHandler.h"
+
 using namespace std;
-#define MAXSUDOKU 1000000
+#define MAXSUDOKU 10000
 
 
 int main(int argc, char* argv[])
@@ -35,16 +24,17 @@ int main(int argc, char* argv[])
     if (mode == 's') { // Handle mode -s
         fstream inFile;
         inFile.open(inFileName, ios::in);
+		fstream outFile(outFileName, ios::out);
         int board[LEN*LEN];
 		int solution[LEN*LEN];
 		while (input.get_board(inFile, board)) {
 			sudoku.solve(board, solution);
-			outputHandler.outputSudoku(outFileName);
+			outputHandler.outputSudoku(outFile);
 		}
+		outFile.close();
     }
 	else if (mode == 'c') { // Handle mode -c
-		sudoku.generateCompleteN(number,result);
-		outputHandler.outputSudoku(number, result, outFileName);
+		sudoku.generateCompleteN_And_Output(number,outFileName);
 	}
 	else if (mode == 'n') { // Handle mode -n
         srand((unsigned)time(NULL));
@@ -55,7 +45,7 @@ int main(int argc, char* argv[])
 		else if (unique && lower == 0 && upper == 0) { // Handle mode -u under -n
 			int tempLower = rand() % 10 + 20;
 			int tempUpper = tempLower + rand() % 20;
-			sudoku.generate(number, tempLower, tempUpper, unique, result);
+			sudoku.generate(number, 20, 55, unique, result);
 		}
 		else if (!unique && lower > 0 && upper > 0) { // Handle mode -r under -n
 			sudoku.generate(number, lower,

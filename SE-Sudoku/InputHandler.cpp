@@ -57,11 +57,12 @@ void InputHandler::analyze()
 				smatch m;
 				if (regex_match(param[i + 1], m, p)) {
 					int pos = param[i + 1].find("~");
-					string num1 = param[i + 1].substr(0, pos+1);
+					string num1 = param[i + 1].substr(0, pos);
 					string num2 = param[i + 1].substr(pos + 1);
 					stringstream ss;
 					ss << num1;
 					ss >> lower;
+					ss.clear();
 					ss << num2;
 					ss >> upper;
 					if (lower < 20 || upper > 55) Output::error(9);

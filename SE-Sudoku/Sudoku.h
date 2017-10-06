@@ -27,11 +27,13 @@ public:
 	Sudoku();
 	Sudoku(char **b);
 	Sudoku(Sudoku &b);
-	inline char* toString();
+	char* toString();
     void generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]);
 	void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]);
 	void generate(int number, int mode, int result[][LEN*LEN]);
 	void generateCompleteN(int number, int result[][LEN*LEN]);
+	void generateCompleteN_And_Output(int number, char * filename);
+	void trace_back_write_file(int i,int j,int number, fstream& outFile);
 	void set(char b[][LEN + 1]);
 	int countSolutionNumber(int solution[],int bound);
 	void trace_back_count_solution(int i, int j, int* solutionNumber,int bound);

@@ -1,7 +1,6 @@
 #include "stdafx.h"
-#include "OutputHandler.h"
-#include "Output.h"
-#include "Sudoku.h"
+
+
 
 
 OutputHandler::OutputHandler(Sudoku* sudoku) {
@@ -15,20 +14,18 @@ void OutputHandler::outputSudoku(int count, int result[][LEN*LEN], char* filenam
     if (!file.is_open()) Output::error(4);
     for (int i = 0; i < count; i++) {
         this->sudoku->convertToTwoDimension(result[i]);
-        char* outcome = this->sudoku->toString();
+        char* outcome = sudoku->toString();
         file << outcome;
-        delete outcome;
+		delete outcome;
     }
     file.close();
 }
 
-void OutputHandler::outputSudoku(char* outFileName) {
+void OutputHandler::outputSudoku(fstream& outFile) {
 	/*
 		@overview:output one sudoku in its board to outFile with outFile name
 	*/
-	fstream outFile(outFileName, ios::out);
 	outFile << sudoku->toString();
-	outFile.close();
 }
 
 OutputHandler::~OutputHandler() {
