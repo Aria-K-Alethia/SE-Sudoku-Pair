@@ -7,6 +7,8 @@
 #include "ctype.h"
 #include "iostream"
 
+#define MAXPUZZLECOUNT
+
 using namespace std;
 #define LEN 9
 /*
@@ -144,7 +146,7 @@ int InputHandler::get_number()
 	return number;
 }
 
-bool InputHandler::get_board(fstream &file, char board[][LEN + 1])
+bool InputHandler::get_board(fstream &file, int board[LEN*LEN])
 {
 	/*
 	@overview:get a board from file,if the format is wrong,raise error
@@ -153,6 +155,7 @@ bool InputHandler::get_board(fstream &file, char board[][LEN + 1])
 	smatch m;
 	string s;
 	//should have 10 lines for a single board;
+    int j = 0;
 	for (int i = 1; i <= LEN; ++i) {
 		if (!getline(file, s)) return false;
 		//cout << s.length() << endl;
@@ -160,10 +163,9 @@ bool InputHandler::get_board(fstream &file, char board[][LEN + 1])
 			file.close();
 			Output::error(5);
 		}
-		int j = 1;
 		for (int k = 0; (unsigned)k < s.length(); ++k) {
 			if (!isspace(s[k])) {
-				board[i][j] = s[k];
+				board[j] = s[k];
 				++j;
 			}
 		}
@@ -171,3 +173,4 @@ bool InputHandler::get_board(fstream &file, char board[][LEN + 1])
 	getline(file, s);
 	return true;
 }
+
