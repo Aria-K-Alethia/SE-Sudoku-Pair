@@ -3,30 +3,25 @@
 #include "Output.h"
 using namespace std;
 
-
-
-
 /*
 @overview:this file implement the class InputHandler in InputHandler.h
 */
 
 //Constructor
-InputHandler::InputHandler(int argc, char** argv)
-{
+InputHandler::InputHandler(int argc, char** argv) {
 	/*
-	@overview:init inputhandler
+    @overview:init inputhandler
 	*/
 	this->argc = argc;
 	this->argv = argv;
 }
 
-void InputHandler::analyze()
-{
+void InputHandler::analyze() {
 	/*
 	@overview:analyze the param in argv to get attr of inputhandler.
 	*/
 	//check the format of the param and save them if valid
-	if (argc < 3)Output::error(1);
+	if (argc < 3) Output::error(1);
 	string m(argv[1]);
 	if (m == "-s" || m == "-c") {
 		if (argc != 3) Output::error(1);
@@ -117,24 +112,21 @@ void InputHandler::analyze()
 		else Output::error(3);
 	}
 }
-char InputHandler::get_mode()
-{
+char InputHandler::getMode() {
 	/*
 	@overview:getter of mode
 	*/
 
 	return mode;
 }
-char* InputHandler::get_filename()
-{
+char* InputHandler::getFileName() {
 	/*
 	@overview:getter of filename
 	*/
 
 	return filename;
 }
-int InputHandler::get_number()
-{
+int InputHandler::getNumber() {
 	/*
 	@overview:getter of number
 	*/
@@ -142,32 +134,28 @@ int InputHandler::get_number()
 	return number;
 }
 
-int InputHandler::getUpper()
-{
+int InputHandler::getUpper() {
 	/*
 	@overview:getter of upper
 	*/
 
 	return upper;
 }
-int InputHandler::getLower()
-{
+int InputHandler::getLower() {
 	/*
 	@overview:getter of lower
 	*/
 
 	return lower;
 }
-int InputHandler::getHardness()
-{
+int InputHandler::getHardness() {
 	/*
 	@overview:getter of hardness
 	*/
 
 	return hardness;
 }
-bool InputHandler::getUnique()
-{
+bool InputHandler::getUnique() {
 	/*
 	@overview:getter of unique
 	*/
@@ -175,8 +163,7 @@ bool InputHandler::getUnique()
 	return unique;
 }
 
-bool InputHandler::get_board(fstream &file, int board[LEN*LEN])
-{
+bool InputHandler::getBoard(fstream &file, int *board) {
 	/*
 	@overview:get a board from file,if the format is wrong,raise error
 	*/

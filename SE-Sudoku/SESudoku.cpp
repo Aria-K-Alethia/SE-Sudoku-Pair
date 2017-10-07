@@ -10,18 +10,16 @@ using namespace std;
 #define LEN 9
 
 
-int main(int argc, char* argv[])
-{
+int main(int argc, char* argv[]) {
 	InputHandler input(argc,argv);
 	input.analyze();
 	Sudoku sudoku;
 	OutputHandler outputHandler = OutputHandler(&sudoku);
 	char* outFileName = "sudoku.txt";
-	int result[MAXSUDOKU][LEN*LEN];
-
-	int mode = input.get_mode();
-	int number = input.get_number();
-	char* inFileName = input.get_filename();
+	int result[MAXSUDOKU][LEN * LEN];
+	int mode = input.getMode();
+	int number = input.getNumber();
+	char* inFileName = input.getFileName();
 	int lower = input.getLower();
     int upper = input.getUpper();
 	bool unique = input.getUnique();
@@ -33,30 +31,26 @@ int main(int argc, char* argv[])
 		fstream outFile(outFileName, ios::out);
         int board[LEN*LEN];
 		int solution[LEN*LEN];
-		while (input.get_board(inFile, board)) {
+		while (input.getBoard(inFile, board)) {
 			if (!sudoku.solve(board, solution)) Output::error(6);
 			outputHandler.outputSudoku(outFile);
 		}
 		outFile.close();
-    }
-	else if (mode == 'c') { // Handle mode -c
+    } else if (mode == 'c') { // Handle mode -c
 		sudoku.generateCompleteNAndOutput(number,outFileName);
-	}
-	else if (mode == 'n') { // Handle mode -n
+	} else if (mode == 'n') { // Handle mode -n
         srand((unsigned)time(NULL));
 		if (unique && lower > 0 && upper > 0) { // Handle mode -r -u under -n
 			sudoku.generate(number, lower,
 				upper, unique, result);
-		}
-		else if (unique && lower == 0 && upper == 0) { // Handle mode -u under -n
+		} else if (unique && lower == 0 && upper == 0) { // Handle mode -u under -n
 			int tempLower = rand() % 10 + 20;
 			int tempUpper = tempLower + rand() % 20;
 			sudoku.generate(number, 20, 55, unique, result);
-		}
-		else if (!unique && lower > 0 && upper > 0) { // Handle mode -r under -n
+		} else if (!unique && lower > 0 && upper > 0) { // Handle mode -r under -n
 			sudoku.generate(number, lower,
 				upper, unique, result);
-        } else if (hardness != 0){ //Handle mode -m under -n
+        } else if (hardness != 0) { //Handle mode -m under -n
             sudoku.generate(number, hardness, result);
         } else if (hardness == 0 && !unique && lower == 0 && upper == 0) { //Handle mode -n without any other parameter
             int tempLower = rand() % 10 + 20;
@@ -66,8 +60,6 @@ int main(int argc, char* argv[])
 
 		outputHandler.outputSudoku(number, result, outFileName);
 	}
-
-    
 	return 0;
 }
 

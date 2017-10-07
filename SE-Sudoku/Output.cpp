@@ -6,13 +6,11 @@ using namespace std;
 @overview:this file implement the class Output in Output.h
 */
 
-Output::Output()
-{
+Output::Output() {
 }
 
-void Output::error(int code)
-{
-	/*
+void Output::error(int code) {
+    /*
 	@overview:showing error info on screen corresponding to the code.
 	*/
 	if (code == 1) cout << "Error code 1:bad number of parameters." << endl;

@@ -1,28 +1,20 @@
 #include "stdafx.h"
 #include "Sudoku.h"
 
-
-
 using namespace std;
 long int Sudoku::count = 0;
-/*below is fast code
-char* Sudoku::out = new char[163 * 1000000 + 1];
-long int Sudoku::out_pos = 0;
-fast code end
-*/
+
 /*
 @overview:this file implement the class Sudoku in Sudoku.h
 */
 
 //Constructor
-Sudoku::Sudoku()
-{
+Sudoku::Sudoku() {
 	//@overview:init a board with 0 and START in board[1][1]
 	init();
 }
 
-Sudoku::Sudoku(char **b)
-{
+Sudoku::Sudoku(char **b) {
 	//@overview:init a board in terms of b
 	assert(b != NULL);
 	for (int i = 1; i <= LEN; ++i) {
@@ -31,8 +23,7 @@ Sudoku::Sudoku(char **b)
 		}
 	}
 }
-Sudoku::Sudoku(Sudoku &b)
-{
+Sudoku::Sudoku(Sudoku &b) {
 	//@overview:copy constructor
 	for (int i = 1; i <= LEN; ++i) {
 		for (int j = 1; j <= LEN; ++j) {
@@ -152,13 +143,12 @@ void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) throw(SudokuC
 
 }
 
-void Sudoku::generateCompleteN(int number, int result[][LEN * LEN]) 
-{
+void Sudoku::generateCompleteN(int number, int result[][LEN * LEN]) {
 	//@overview:generate n sudoku 
 	//do some prepare
 	init();
 	Sudoku::count = 0;
-	trace_back_n(1, 1, number, result);
+    traceBackN(1, 1, number, reinterpret_cast<int **>(result));
 	
 }
 
@@ -168,11 +158,11 @@ void Sudoku::generateCompleteNAndOutput(int number, char* filename) {
 	*/
 	fstream outFile(filename, ios::out);
 	Sudoku::count = 0;
-	trace_back_write_file(1, 1, number, outFile);
+    traceBackWriteFile(1, 1, number, outFile);
 	outFile.close();
 }
 
-void Sudoku::trace_back_write_file(int i,int j,int number, fstream& outFile) {
+void Sudoku::traceBackWriteFile(int i, int j, int number, fstream &outFile) {
 	/*
 		@overview:trace back method for generateCompleteN_And_Output
 	*/
@@ -188,15 +178,15 @@ void Sudoku::trace_back_write_file(int i,int j,int number, fstream& outFile) {
 
 	for (int k = 1; k <= LEN; ++k) {
 		if (Sudoku::count >= number) return;
-		if (check_generate_pos(i, j, k)) {   //check if it is ok to set k on (i,j)
+		if (checkGeneratePos(i, j, k)) {   //check if it is ok to set k on (i,j)
 			board[i][j] = k + '0';
-			trace_back_write_file(i, j + 1, number, outFile);    //if can,recur to next place
+            traceBackWriteFile(i, j + 1, number, outFile);    //if can,recur to next place
 		}
 	}
 	board[i][j] = '0';
 }
 
-bool Sudoku::solve(int puzzle[], int solution[]) throw(IllegalLengthException){
+bool Sudoku::solve(int puzzle[], int solution[]) throw(IllegalLengthException) {
 	/*
 	@overview:solve sudoku in puzzle.save the outcome to solution
 	*/
@@ -208,7 +198,7 @@ bool Sudoku::solve(int puzzle[], int solution[]) throw(IllegalLengthException){
 
 	convertToTwoDimension(puzzle);
 	
-	ret = trace_back_solve(1, 1);
+	ret = traceBackSolve(1, 1);
 
     if (!check()) { // The sudoku is illegal
         return false;
@@ -239,10 +229,10 @@ void Sudoku::convertToOneDimension(int solution[]) {
 void Sudoku::solve_and_output(InputHandler input, char* filename)
 {
 	
-	fstream infile(input.get_filename(), ios::in);
+	fstream infile(input.getFileName(), ios::in);
 	if (!infile.is_open()) Output::error(4);
 	char board[LEN + 1][LEN + 1];
-	while (input.get_board(infile, board)) {
+	while (input.getBoard(infile, board)) {
 		set(board);
 		if (solve()) {
 			
@@ -321,13 +311,13 @@ bool Sudoku::check()
 	//@overview:check if the whole sudoku is valid
 	for (int i = 1; i <= LEN; ++i) {
 		for (int j = 1; j <= LEN; ++j) {
-			if (!check_pos(i, j)) return false;
+			if (!checkPos(i, j)) return false;
 		}
 	}
 	return true;
 }
 
-bool Sudoku::check_pos(int i, int j)
+bool Sudoku::checkPos(int i, int j)
 {
 	//@overview:check the num in pos (i,j) is valid or not
 	bool used[LEN + 1];
@@ -352,8 +342,8 @@ bool Sudoku::check_pos(int i, int j)
 	//check the 3x3 block
 	memset(used, 0, sizeof(used));
 	int row, col;
-	row = get_block(i);
-	col = get_block(j);
+	row = getBlock(i);
+	col = getBlock(j);
 	for (int i = 0; i < 3; ++i) {
 		for (int j = 0; j < 3; ++j) {
 			num = board[row + i][col + j] - '0';
@@ -371,11 +361,11 @@ int Sudoku::countSolutionNumber(int puzzle[],int bound) {
 	*/
 	convertToTwoDimension(puzzle);
 	int solutionNumber = 0;
-	trace_back_count_solution(1, 1,&solutionNumber,bound);
+    traceBackCountSolution(1, 1, &solutionNumber, bound);
 	return solutionNumber;
 }
 
-void Sudoku::trace_back_count_solution(int i, int j,int* solutionNumber,int bound) {
+void Sudoku::traceBackCountSolution(int i, int j, int *solutionNumber, int bound) {
 	/*
 	@overview:trace back method for countSolutionNumber,save the solution
 	number in the pointer solutionNumber
@@ -389,13 +379,13 @@ void Sudoku::trace_back_count_solution(int i, int j,int* solutionNumber,int boun
 		j = 1;
 	}
     if (board[i][j] != '0') {
-        trace_back_count_solution(i, j + 1, solutionNumber, bound);
+        traceBackCountSolution(i, j + 1, solutionNumber, bound);
         return;
     }
 	for (int k = 1; k <= LEN; k++) {
-		if (check_solve_pos(i, j, k)) {
+		if (checkSolvePos(i, j, k)) {
 			board[i][j] = k + '0';
-			trace_back_count_solution(i, j + 1, solutionNumber,bound);
+            traceBackCountSolution(i, j + 1, solutionNumber, bound);
 			if (*solutionNumber >= bound) return;
 		}
 	}
@@ -404,8 +394,7 @@ void Sudoku::trace_back_count_solution(int i, int j,int* solutionNumber,int boun
 }
 
 //private method
-void Sudoku::init()
-{
+void Sudoku::init() {
 	//@overview:init  a board with START number
 	for (int i = 0; i <= LEN; ++i) {
 		for (int j = 0; j <= LEN; ++j) {
@@ -414,16 +403,14 @@ void Sudoku::init()
 	}
 }
 
-inline int Sudoku::get_block(int i)
-{
+inline int Sudoku::getBlock(int i) {
 	/*@overview:get the first row or col in the block of row or col i
 	@param:
 	*/
 	return ((i - 1) / 3) * 3 + 1;
 }
 
-inline void Sudoku::trace_back_n(int i, int j, int n, int result[][LEN * LEN])
-{
+inline void Sudoku::traceBackN(int i, int j, int n, int **result) {
 	//@overview:trace back method for generate_output_n method.
 	if (i == 9 && j == 10) {
         Sudoku::convertToOneDimension(result[Sudoku::count]);
@@ -442,16 +429,15 @@ inline void Sudoku::trace_back_n(int i, int j, int n, int result[][LEN * LEN])
 
 	for (int k = 1; k <= LEN; ++k) {
 		if (Sudoku::count >= n) return;
-		if (check_generate_pos(i, j, k)) {   //check if it is ok to set k on (i,j)
+		if (checkGeneratePos(i, j, k)) {   //check if it is ok to set k on (i,j)
 			board[i][j] = k + '0';
-			trace_back_n(i, j + 1, n, result);    //if can,recur to next place
+            traceBackN(i, j + 1, n, result);    //if can,recur to next place
 		}
 	}
 	board[i][j] = '0';
 }
 
-inline bool Sudoku::trace_back_solve(int i, int j)
-{
+inline bool Sudoku::traceBackSolve(int i, int j) {
 	/*@overview:trace back function when solve sudoku
 	@param:
 	*/
@@ -461,13 +447,13 @@ inline bool Sudoku::trace_back_solve(int i, int j)
 		++i;
 	}
 	if (board[i][j] != '0') {
-		return trace_back_solve(i, j + 1);
+		return traceBackSolve(i, j + 1);
 	}
 	bool outcome;
 	for (int k = 1; k <= LEN; ++k) {
-		if (check_solve_pos(i, j, k)) {
+		if (checkSolvePos(i, j, k)) {
 			board[i][j] = k + '0';
-			outcome = trace_back_solve(i, j + 1);
+			outcome = traceBackSolve(i, j + 1);
 			if (outcome) return true;
 		}
 	}
@@ -475,8 +461,7 @@ inline bool Sudoku::trace_back_solve(int i, int j)
 	return false;
 }
 
-bool Sudoku::check_generate_pos(int i, int j, int k)
-{
+bool Sudoku::checkGeneratePos(int i, int j, int k) {
 	/*@overview:check if the board is valid when board[i][j] = k,this method omit 0 in the board
 	@param:
 	*/
@@ -491,8 +476,8 @@ bool Sudoku::check_generate_pos(int i, int j, int k)
 	}
 	//check 3x3 block
 	int row, col;
-	row = get_block(i);
-	col = get_block(j);
+	row = getBlock(i);
+	col = getBlock(j);
 
 	for (int a = row; a <= i; ++a) {
 		for (int b = col; b <= col + 2; ++b) {
@@ -504,8 +489,7 @@ bool Sudoku::check_generate_pos(int i, int j, int k)
 	return true;
 }
 
-bool Sudoku::check_solve_pos(int i, int j, int k)
-{
+bool Sudoku::checkSolvePos(int i, int j, int k) {
 	/*@overview:check if k in (i,j) is valid when solving a sudoku
 	@param:
 	*/
@@ -520,8 +504,8 @@ bool Sudoku::check_solve_pos(int i, int j, int k)
 	}
 	//check 3x3 block
 	int row, col;
-	row = get_block(i);
-	col = get_block(j);
+	row = getBlock(i);
+	col = getBlock(j);
 
 	for (int a = row; a <= row + 2; ++a) {
 		for (int b = col; b <= col + 2; ++b) {

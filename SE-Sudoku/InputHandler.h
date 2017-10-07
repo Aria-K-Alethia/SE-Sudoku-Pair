@@ -8,15 +8,14 @@ using namespace std;
 /*
 @overview:The InputHandler is mutable.This class is used to processing the input and save necessary info.
 */
-class InputHandler
-{
+class InputHandler {
 public:
 	InputHandler(int argc, char** argv);
 	void analyze();
-	char get_mode();
-	char* get_filename();
-	int get_number();
-	bool get_board(fstream &file, int board[LEN * LEN]);
+	char getMode();
+	char* getFileName();
+	int getNumber();
+	bool getBoard(fstream &file, int *board);
 	int getUpper();
 	int getLower();
 	bool getUnique();
