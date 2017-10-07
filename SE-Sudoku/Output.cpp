@@ -28,5 +28,24 @@ void Output::error(int code) {
 	else if (code == 13) cout << "Error code 13:the number of -n must in [1,10000]" << endl;
 	else if (code == 14) cout << "Error code 14:the parameter of -n must be a integer" << endl;
 	else if (code == 15) cout << "Error code 15:parameter in -r lower~upper must satisfy lower<=upper" << endl;
+	cout << "Enter \"sudoku.exe -h\" to get help information" << endl;
 	exit(-1);
+}
+
+void Output::help()
+{
+	/*
+	@overview:showing error info on screen corresponding to the code.
+	*/
+	char* help_info = "Usage:\n\
+-c number\ngenerate number complete sudoku in sudoku.txt,note number should in [1,1000000]\n\n\
+-s filepath\nsolve sudoku puzzle in file with filepath and save the solutions in sudoku.txt\n\n\
+-n number [-r lower~upper] [-u]\ngenerate number sudoku puzzle in sudoku.txt,with -r if you\
+want to control the holes in puzzle between lower to upper,with -u if you want the puzzles\
+have only one solution\nnote valid number should in [1,10000],upper and lower should in\
+[20,55]\n\n\
+-n number [-m degree_of_difficulty]\ngenerate number sudoku puzzle in sudoku.txt,with -m \
+to control the difficulty of puzzle:easy:1,medium:2,hard:3\n\n";
+
+	cout << help_info;
 }

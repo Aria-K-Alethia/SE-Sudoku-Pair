@@ -1,10 +1,10 @@
 #pragma once
 #include <fstream>
-#include "Sudoku.h"
+
 #define LEN 9
 using namespace std;
-//class Sudoku;
-class OutputHandler;
+class Sudoku;
+class Output;
 
 
 class OutputHandler {

@@ -20,9 +20,15 @@ void InputHandler::analyze() {
 	/*
 	@overview:analyze the param in argv to get attr of inputhandler.
 	*/
+	//first check if the instruction is sudoku.exe -h
+	string m(argv[1]);
+	if (argc == 2 && m == "-h") {
+		Output::help();
+		exit(0);
+	}
 	//check the format of the param and save them if valid
 	if (argc < 3) Output::error(1);
-	string m(argv[1]);
+	
 	if (m == "-s" || m == "-c") {
 		if (argc != 3) Output::error(1);
 		mode = m[1];

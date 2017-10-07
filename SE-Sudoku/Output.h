@@ -8,4 +8,5 @@ class Output
 public:
 	Output();
 	static void error(int code);
+	static void help();
 };
