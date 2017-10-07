@@ -148,7 +148,7 @@ void Sudoku::generateCompleteN(int number, int result[][LEN * LEN]) {
 	//do some prepare
 	init();
 	Sudoku::count = 0;
-    traceBackN(1, 1, number, reinterpret_cast<int **>(result));
+    traceBackN(1, 1, number, result);
 	
 }
 
@@ -410,7 +410,7 @@ inline int Sudoku::getBlock(int i) {
 	return ((i - 1) / 3) * 3 + 1;
 }
 
-inline void Sudoku::traceBackN(int i, int j, int n, int **result) {
+inline void Sudoku::traceBackN(int i, int j, int n, int result[][LEN*LEN]) {
 	//@overview:trace back method for generate_output_n method.
 	if (i == 9 && j == 10) {
         Sudoku::convertToOneDimension(result[Sudoku::count]);
@@ -514,6 +514,10 @@ bool Sudoku::checkSolvePos(int i, int j, int k) {
 	}
 
 	return true;
+}
+
+char Sudoku::getElem(int i, int j) {
+	return board[i][j];
 }
 
 const char * IllegalLengthException::what() const throw() {

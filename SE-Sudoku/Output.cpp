@@ -43,7 +43,7 @@ void Output::help()
 -n number [-r lower~upper] [-u]\ngenerate number sudoku puzzle in sudoku.txt,with -r if you\
 want to control the holes in puzzle between lower to upper,with -u if you want the puzzles\
 have only one solution\nnote valid number should in [1,10000],upper and lower should in\
-[20,55]\n\n\
+[20,55]\nNote -n can not be used alone without -r or -u\n\
 -n number [-m degree_of_difficulty]\ngenerate number sudoku puzzle in sudoku.txt,with -m \
 to control the difficulty of puzzle:easy:1,medium:2,hard:3\n\n";
 

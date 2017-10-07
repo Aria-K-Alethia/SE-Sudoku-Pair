@@ -11,6 +11,7 @@ using namespace std;
 
 
 int main(int argc, char* argv[]) {
+
 	InputHandler input(argc,argv);
 	input.analyze();
 	Sudoku sudoku;
@@ -28,6 +29,7 @@ int main(int argc, char* argv[]) {
     if (mode == 's') { // Handle mode -s
         fstream inFile;
         inFile.open(inFileName, ios::in);
+		if (!inFile.is_open())Output::error(4);
 		fstream outFile(outFileName, ios::out);
         int board[LEN*LEN];
 		int solution[LEN*LEN];

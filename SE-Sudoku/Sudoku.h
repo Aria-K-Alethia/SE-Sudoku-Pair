@@ -29,9 +29,12 @@ class Sudoku {
 private:
 	char board[LEN + 1][LEN + 1];
 	void init();
-	inline void traceBackN(int i, int j, int n, int **result);
+	inline void traceBackN(int i, int j, int n, int result[][LEN*LEN]);
 	inline bool traceBackSolve(int i, int j);
 	inline int getBlock(int i);
+	void traceBackWriteFile(int i, int j, int number, fstream &outFile);
+	void traceBackCountSolution(int i, int j, int *solutionNumber, int bound);
+	void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]);
 	static long int count;
 	//below is the fast code
 	static char* out;
@@ -42,14 +45,11 @@ public:
 	Sudoku(Sudoku &b);
 	char* toString();
     void generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]);
-	void digHoles(int count, int mode, int lower, int upper, int result[][LEN*LEN]);
 	void generate(int number, int mode, int result[][LEN*LEN]);
 	void generateCompleteN(int number, int result[][LEN*LEN]);
 	void generateCompleteNAndOutput(int number, char * filename);
-	void traceBackWriteFile(int i, int j, int number, fstream &outFile);
 	void set(char b[][LEN + 1]);
 	int countSolutionNumber(int solution[],int bound);
-	void traceBackCountSolution(int i, int j, int *solutionNumber, int bound);
 	bool solve(int puzzle[], int solution[]);
 	void convertToTwoDimension(int puzzle[]);
 	void convertToOneDimension(int solution[]);
@@ -57,6 +57,7 @@ public:
 	bool checkPos(int i, int j);
 	bool checkGeneratePos(int i, int j, int k);
 	bool checkSolvePos(int i, int j, int k);
+	char getElem(int i, int j);
 };
 
 class IllegalLengthException :public exception {

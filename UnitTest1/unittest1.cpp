@@ -16,8 +16,19 @@ namespace UnitTest1
 	public:
 
 		Sudoku sudoku;
+		const int length = 100;
+		int argc;
+		char** argv;
 
 		UnitTest1() {
+			/*
+				@overview:Initialize unittest
+			*/
+			argv = new char*[6];
+			for (int i = 0; i < 6; i++)
+			{
+				argv[i] = new char[100];
+			}
 		}
 
 		TEST_METHOD(TestSolve)
@@ -115,7 +126,7 @@ namespace UnitTest1
 				}
 				Assert::AreEqual(count <= NORMALUPPER && count >= NORMALLOWER, true);
 			}
-
+			/*
 			sudoku.generate(10, HARDMODE, result);
 			for (int i = 0; i < 10; ++i) {
 				int count = 0;
@@ -124,6 +135,7 @@ namespace UnitTest1
 				}
 				Assert::AreEqual(count <= HARDUPPER && count >= HARDLOWER, true);
 			}
+			*/
 		}
 		TEST_METHOD(TestException) {
 			int result[1][81];
@@ -228,6 +240,134 @@ namespace UnitTest1
 				exceptionThrown = true;
 			}
 			Assert::IsTrue(exceptionThrown);*/
+		}
+		TEST_METHOD(TestInputHandlerAnalyze1) {
+			/*
+				@overview:test inputhandler.analyze(),and its getter
+			*/
+			InputHandler* input;
+			strcpy_s(argv[1], length, "-n");
+			strcpy_s(argv[2], length, "1000");
+			strcpy_s(argv[3], length, "-r");
+			strcpy_s(argv[4], length, "20~55");
+			strcpy_s(argv[5], length, "-u");
+			argc = 6;
+			input = new InputHandler(argc, argv);
+			input->analyze();
+			Assert::AreEqual(input->getMode(), 'n');
+			Assert::AreEqual(input->getNumber(), 1000);
+			Assert::AreEqual(input->getUpper(), 55);
+			Assert::AreEqual(input->getLower(), 20);
+			Assert::AreEqual(input->getUnique(), true);
+
+			delete input;
+		}
+		TEST_METHOD(TestInputHandlerAnalyze2) {
+			/*
+			@overview:test inputhandler.analyze(),and its getter
+			*/
+			InputHandler* input;
+			strcpy_s(argv[1], length, "-s");
+			strcpy_s(argv[2], length, "puzzle.txt");
+			argc = 3;
+			input = new InputHandler(argc, argv);
+			input->analyze();
+			Assert::AreEqual(input->getMode(), 's');
+			Assert::AreEqual(input->getFileName(), "puzzle.txt");
+			
+			delete input;
+		}
+		TEST_METHOD(TestInputHandlerAnalyze3) {
+			/*
+			@overview:test inputhandler.analyze(),and its getter
+			*/
+			InputHandler* input;
+			strcpy_s(argv[1], length, "-c");
+			strcpy_s(argv[2], length, "1000");
+			argc = 3;
+			input = new InputHandler(argc, argv);
+			input->analyze();
+			Assert::AreEqual(input->getMode(), 'c');
+			Assert::AreEqual(input->getNumber(), 1000);
+
+			delete input;
+		}
+		TEST_METHOD(TestGenerateCompleteNAndOutput) {
+			/*
+				@overview:test method sudoku.generateCompleteNAndOutput
+			*/
+			char* filename = "sudoku.txt";
+			int board[LEN*LEN];
+			int count=0;
+			sudoku.generateCompleteNAndOutput(1000, filename);
+			fstream f(filename, ios::in);
+			InputHandler input(argc,argv);
+
+			//should have 1000 valid sudoku
+			while (input.getBoard(f, board)) {
+				count++;
+				sudoku.convertToTwoDimension(board);
+				Assert::AreEqual(sudoku.check(), true);
+			}
+			Assert::AreEqual(count, 1000);
+			f.close();
+		}
+		TEST_METHOD(Testconvert) {
+			/*
+				@overview:test sudoku.convertToOneDimension()
+				and sudoku.convertToTwoDimension()
+			*/
+			int solution[81] = {
+				5,1,2,3,4,6,7,8,9,
+				7,8,9,5,1,2,3,4,6,
+				3,4,6,7,8,9,5,1,2,
+				2,5,1,8,3,4,9,6,7,
+				6,9,7,2,5,1,8,3,4,
+				8,3,4,6,9,7,2,5,1,
+				1,2,5,4,7,3,6,9,8,
+				9,6,8,1,2,5,4,7,3,
+				4,7,3,9,6,8,1,2,5
+			};
+			sudoku.convertToTwoDimension(solution);
+			for (int i = 0; i < 81; ++i) {
+				Assert::AreEqual(sudoku.getElem(i / 9 + 1, i % 9 + 1), char(solution[i] + '0'));
+			}
+			int solution2[81];
+			sudoku.convertToOneDimension(solution2);
+			for (int i = 0; i < 81; ++i) {
+				Assert::AreEqual(solution[i],solution2[i]);
+			}
+		}
+		TEST_METHOD(TestCheck) {
+			/*
+			@overview:test sudoku.check()
+			*/
+			int solution1[81] = {
+				5,1,2,3,4,6,7,8,9,
+				7,8,9,5,1,2,3,4,6,
+				3,4,6,7,8,9,5,1,2,
+				2,5,1,8,3,4,9,6,7,
+				6,9,7,2,5,1,8,3,4,
+				8,3,4,6,9,7,2,5,1,
+				1,2,5,4,7,3,6,9,8,
+				9,6,8,1,2,5,4,7,3,
+				4,7,3,9,6,8,1,2,5
+			};
+			int solution2[81] = {
+				5,1,2,3,4,6,7,8,9,
+				7,8,9,5,1,2,3,4,6,
+				3,4,6,7,8,9,5,1,2,
+				2,5,1,8,3,4,9,6,7,
+				6,9,7,2,5,1,8,3,4,
+				8,3,4,6,9,7,2,5,1,
+				1,2,5,4,7,3,7,9,8,
+				9,6,8,1,2,5,4,7,3,
+				4,7,3,9,6,8,1,2,5
+			};
+			sudoku.convertToTwoDimension(solution1);
+			Assert::IsTrue(sudoku.check());
+			sudoku.convertToTwoDimension(solution2);
+			Assert::IsFalse(sudoku.check());
 		}
 	};
 }
