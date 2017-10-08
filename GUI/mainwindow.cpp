@@ -3,6 +3,7 @@
 #pragma execution_character_set("gbk")
 #endif
 */
+//#pragma comment(lib,"SudokuDll.lib")
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "QStackedWidget"
@@ -11,7 +12,9 @@
 #include "QLabel"
 #include "QGridLayout"
 #include "QHBoxLayout"
+#include "../GUI/Sudoku.h"
 #include <iostream>
+
 
 static QString welcomePage1Str[2] = {"NewGame","help"};
 static QString welcomePage2Str[3] = {"Easy","Medium","Hard"};
@@ -19,7 +22,8 @@ static QString welcomePage2Str[3] = {"Easy","Medium","Hard"};
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    ui(new Ui::MainWindow),
+    sudoku(nullptr)
 {
     ui->setupUi(this);
     this->setWindowTitle(tr("数独游戏"));
@@ -81,12 +85,13 @@ MainWindow::MainWindow(QWidget *parent) :
         for(int j = 0; j < 9; j++) {
             puzzleButtons[i][j] = new QPushButton();
             puzzleButtons[i][j]->setMinimumSize (30,30);
+            puzzleButtons[i][j]->setStyleSheet("padding:-1");
             puzzleLayout->addWidget (puzzleButtons[i][j], i, j);
             connect (puzzleButtons[i][j], &QPushButton::clicked, this, &MainWindow::pressButtonPuzzle);
             puzzleButtons[i][j]->setSizePolicy (QSizePolicy::Expanding, QSizePolicy::Expanding);
         }
     }
-    puzzleLayout->setMargin(0);
+    puzzleLayout->setMargin(80);
     puzzleLayout->setVerticalSpacing(0);
     puzzleLayout->setHorizontalSpacing(0);
     for(int i = 0; i < 9; ++i){
@@ -94,7 +99,7 @@ MainWindow::MainWindow(QWidget *parent) :
         puzzleLayout->setRowStretch(i,1);
         puzzleLayout->setColumnMinimumWidth (i, 20);
     }
-    this->setMinimumSize(550, 550);
+
     //Add choices buttons
     QPushButton* choicesButtons[9];
     for(int i = 0; i < 9; i++) {
@@ -104,8 +109,8 @@ MainWindow::MainWindow(QWidget *parent) :
     mainLayout->addLayout (puzzleLayout, 0);
     mainLayout->addLayout (choicesLayout, 0);
 
-
-    welcomeWindow->setCurrentIndex(0);
+    this->setMinimumSize(QSize(1000,1000));
+    this->setMaximumSize(QSize(1000,1000));
 
 }
 
@@ -131,10 +136,30 @@ void MainWindow::pressButtonDifficulty() {
     }
     mainWindow->setCurrentIndex (1);
     //Generate sudoku puzzle with different difficulty
+    gameSet(i+1);
 }
 
 void MainWindow::pressButtonPuzzle() {
     //overview: Invoked when puzzle buttons pressed
+}
+
+void MainWindow::gameSet(int degOfDifficulty){
+    sudoku = new Sudoku();
+    int result[10][LEN*LEN];
+    sudoku->generate(10,degOfDifficulty,result);
+    srand((unsigned)time(nullptr));
+    int target = rand()%10;
+    QString temp;
+    for(int i = 0 ; i < LEN*LEN ; ++i){
+        for(int j = 0 ; j < LEN*LEN ; ++j){
+            if(result[target][i*LEN+j] == 0){
+                puzzleButtons[i][j]->setText("");
+            }
+            else{
+                puzzleButtons[i][j]->setText(temp.setNum(result[target][i*LEN+j]));
+            }
+        }
+    }
 }
 
 MainWindow::~MainWindow()

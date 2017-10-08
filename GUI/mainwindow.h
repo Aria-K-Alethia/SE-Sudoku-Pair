@@ -6,7 +6,7 @@
 class QStackedWidget;
 class QWidget;
 class QPushButton;
-
+class Sudoku;
 
 namespace Ui {
 class MainWindow;
@@ -15,6 +15,7 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 
 public:
     explicit MainWindow(QWidget *parent = 0);
@@ -32,7 +33,9 @@ private:
     QStackedWidget* welcomeWindow;
     QWidget* gameWindow;
     QPushButton*** puzzleButtons;
+    Sudoku* sudoku;
 
+    void gameSet(int degOfDiffculty);
 
 };
 

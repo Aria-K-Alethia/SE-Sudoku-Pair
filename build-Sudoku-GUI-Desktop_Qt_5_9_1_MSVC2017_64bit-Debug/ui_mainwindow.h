@@ -36,13 +36,13 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(934, 599);
+        MainWindow->resize(1204, 716);
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         MainWindow->setCentralWidget(centralWidget);
         menuBar = new QMenuBar(MainWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
-        menuBar->setGeometry(QRect(0, 0, 934, 17));
+        menuBar->setGeometry(QRect(0, 0, 1204, 26));
         menuNewGame = new QMenu(menuBar);
         menuNewGame->setObjectName(QStringLiteral("menuNewGame"));
         MainWindow->setMenuBar(menuBar);
