@@ -3,6 +3,7 @@
 
 using namespace std;
 long int Sudoku::count = 0;
+bool Sudoku::hasMode = false;
 
 /*
 @overview:this file implement the class Sudoku in Sudoku.h
@@ -44,7 +45,7 @@ void Sudoku::generate(int number, int lower, int upper, bool unique, int result[
 	/*if (number > sizeof(result) / (81 * sizeof(int))) {
 		throw ResultRowTooFewException();
 	}*/
-	if (lower < 20 || upper > 55 || lower > upper) {
+	if (((lower < 20 || upper > 55) && (!Sudoku::hasMode)) || lower > upper) {
 		throw LowerUpperException();
 	}
 
@@ -117,7 +118,7 @@ void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) throw(SudokuC
     //ResultRowTooFewException,
 	 ModeRangeException){
     //@overview: generate puzzles with restriction of difficulty level
-
+    Sudoku::hasMode = true;
 	if (number > 10000 || number < 1) {
 		throw SudokuCountException();
 	}
@@ -140,7 +141,7 @@ void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) throw(SudokuC
     default:
         break;
     }
-
+    Sudoku::hasMode = false;
 }
 
 void Sudoku::generateCompleteN(int number, int result[][LEN * LEN]) {

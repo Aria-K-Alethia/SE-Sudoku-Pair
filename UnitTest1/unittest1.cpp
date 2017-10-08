@@ -126,7 +126,7 @@ namespace UnitTest1
 				}
 				Assert::AreEqual(count <= NORMALUPPER && count >= NORMALLOWER, true);
 			}
-			/*
+			
 			sudoku.generate(10, HARDMODE, result);
 			for (int i = 0; i < 10; ++i) {
 				int count = 0;
@@ -135,7 +135,7 @@ namespace UnitTest1
 				}
 				Assert::AreEqual(count <= HARDUPPER && count >= HARDLOWER, true);
 			}
-			*/
+			
 		}
 		TEST_METHOD(TestException) {
 			int result[1][81];

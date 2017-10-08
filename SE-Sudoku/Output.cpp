@@ -28,6 +28,7 @@ void Output::error(int code) {
 	else if (code == 13) cout << "Error code 13:the number of -n must in [1,10000]" << endl;
 	else if (code == 14) cout << "Error code 14:the parameter of -n must be a integer" << endl;
 	else if (code == 15) cout << "Error code 15:parameter in -r lower~upper must satisfy lower<=upper" << endl;
+    else if (code == 18) cout << "Error code 18:parameter -n can't be used without other parameters" << endl;
 	cout << "Enter \"sudoku.exe -h\" to get help information" << endl;
 	exit(-1);
 }

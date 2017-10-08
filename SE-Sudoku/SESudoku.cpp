@@ -54,10 +54,6 @@ int main(int argc, char* argv[]) {
 				upper, unique, result);
         } else if (hardness != 0) { //Handle mode -m under -n
             sudoku.generate(number, hardness, result);
-        } else if (hardness == 0 && !unique && lower == 0 && upper == 0) { //Handle mode -n without any other parameter
-            int tempLower = rand() % 10 + 20;
-            int tempUpper = tempLower + rand() % 20;
-            sudoku.generate(number, tempLower, tempUpper, unique, result);
         }
 
 		outputHandler.outputSudoku(number, result, outFileName);

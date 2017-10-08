@@ -39,6 +39,9 @@ void InputHandler::analyze() {
 		for (int i = 0; i < argc; ++i) {
 			param[i] = argv[i];
 			if (param[i] == "-n") {
+                if (argc < 4) {
+                    Output::error(18);
+                }
 				mode = param[i][1];
 			}
 		}
