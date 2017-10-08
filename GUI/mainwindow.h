@@ -18,6 +18,9 @@ class MainWindow : public QMainWindow
 
 public:
     explicit MainWindow(QWidget *parent = 0);
+    void pressButtonWelcome();
+    void pressButtonDifficulty();
+    void pressButtonPuzzle();
     ~MainWindow();
 
 private slots:
@@ -27,7 +30,8 @@ private:
     Ui::MainWindow *ui;
     QStackedWidget* mainWindow;
     QStackedWidget* welcomeWindow;
-    QPushButton*** sudoku_button;
+    QWidget* gameWindow;
+    QPushButton*** puzzleButtons;
 
 
 };

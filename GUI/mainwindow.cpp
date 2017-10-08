@@ -9,8 +9,12 @@
 #include "QVBoxLayout"
 #include "QPushButton"
 #include "QLabel"
+#include "QGridLayout"
+#include "QHBoxLayout"
 #include <iostream>
 
+static QString welcomePage1Str[2] = {"NewGame","help"};
+static QString welcomePage2Str[3] = {"Easy","Medium","Hard"};
 
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -23,7 +27,9 @@ MainWindow::MainWindow(QWidget *parent) :
     //widget
     mainWindow = new QStackedWidget();
     welcomeWindow = new QStackedWidget();
+    gameWindow = new QWidget();
     mainWindow->addWidget(welcomeWindow);
+    mainWindow->addWidget(gameWindow);
     mainWindow->setCurrentIndex(0);
     this->setCentralWidget(mainWindow);
 
@@ -42,11 +48,10 @@ MainWindow::MainWindow(QWidget *parent) :
     welcomePage1Layout->addWidget(welcomeLabel);
     welcomePage1Layout->addStretch(2);
     welcomePage1Layout->setMargin(180);
-    QString welcomePage1Str[2] = {tr("NewGame"),tr("help")};
     for(int i = 0 ; i < 2 ; ++ i){
         QPushButton *button = new QPushButton(welcomePage1Str[i]);
         welcomePage1Layout->addWidget(button);
-        //connect(button,&QPushButton::clicked,this,&MainWindow::);
+        connect(button,&QPushButton::clicked,this,&MainWindow::pressButtonWelcome);
         welcomePage1Layout->addStretch(1);
     }
 
@@ -58,15 +63,78 @@ MainWindow::MainWindow(QWidget *parent) :
     welcomePage2Layout->addWidget(chooseDifficultyLabel);
     welcomePage2Layout->addStretch(2);
     welcomePage2Layout->setMargin(180);
-    QString welcomePage2Str[3] = {tr("Easy"),tr("Medium"),tr("Hard")};
     for(int i = 0 ; i < 3 ; ++i){
         QPushButton *button = new QPushButton(welcomePage2Str[i]);
+        connect(button,&QPushButton::clicked,this,&MainWindow::pressButtonDifficulty);
         welcomePage2Layout->addWidget(button);
         welcomePage2Layout->addStretch(1);
     }
-    welcomeWindow->setCurrentIndex(1);
+
+    //Main game page
+    QVBoxLayout* mainLayout = new QVBoxLayout(gameWindow);
+    QGridLayout* puzzleLayout = new QGridLayout(gameWindow);
+    QHBoxLayout* choicesLayout = new QHBoxLayout(gameWindow);
+    //Add puzzle buttons
+    puzzleButtons = new QPushButton**[9];
+    for(int i = 0; i < 9; i++) {
+        puzzleButtons[i] = new QPushButton*[9];
+        for(int j = 0; j < 9; j++) {
+            puzzleButtons[i][j] = new QPushButton();
+            puzzleButtons[i][j]->setMinimumSize (30,30);
+            puzzleLayout->addWidget (puzzleButtons[i][j], i, j);
+            connect (puzzleButtons[i][j], &QPushButton::clicked, this, &MainWindow::pressButtonPuzzle);
+            puzzleButtons[i][j]->setSizePolicy (QSizePolicy::Expanding, QSizePolicy::Expanding);
+        }
+    }
+    puzzleLayout->setMargin(0);
+    puzzleLayout->setVerticalSpacing(0);
+    puzzleLayout->setHorizontalSpacing(0);
+    for(int i = 0; i < 9; ++i){
+        puzzleLayout->setColumnStretch(i,1);
+        puzzleLayout->setRowStretch(i,1);
+        puzzleLayout->setColumnMinimumWidth (i, 20);
+    }
+    this->setMinimumSize(550, 550);
+    //Add choices buttons
+    QPushButton* choicesButtons[9];
+    for(int i = 0; i < 9; i++) {
+        choicesButtons[i] = new QPushButton();
+        choicesLayout->addWidget (choicesButtons[i], 1);
+    }
+    mainLayout->addLayout (puzzleLayout, 0);
+    mainLayout->addLayout (choicesLayout, 0);
 
 
+    welcomeWindow->setCurrentIndex(0);
+
+}
+
+void MainWindow::pressButtonWelcome() {
+    //overview: Choose to enter game or view help
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    if (button->text () == welcomePage1Str[0]) {
+        welcomeWindow->setCurrentIndex (1);
+    } else if (button->text () == welcomePage1Str[1]) {
+        //welcomeWindow->setCurrentIndex (2);
+    }
+}
+
+
+void MainWindow::pressButtonDifficulty() {
+    //overview: Switch to game view when difficulty button pressed
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    int i;
+    for(i = 0;i < 3; ++i) {
+        if(button->text() == welcomePage2Str[i]){
+            break;
+        }
+    }
+    mainWindow->setCurrentIndex (1);
+    //Generate sudoku puzzle with different difficulty
+}
+
+void MainWindow::pressButtonPuzzle() {
+    //overview: Invoked when puzzle buttons pressed
 }
 
 MainWindow::~MainWindow()
