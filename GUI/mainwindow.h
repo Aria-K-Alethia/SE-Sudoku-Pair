@@ -3,6 +3,11 @@
 
 #include <QMainWindow>
 
+class QStackedWidget;
+class QWidget;
+class QPushButton;
+
+
 namespace Ui {
 class MainWindow;
 }
@@ -16,10 +21,15 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_pushButton_clicked();
+
 
 private:
     Ui::MainWindow *ui;
+    QStackedWidget* mainWindow;
+    QStackedWidget* welcomeWindow;
+    QPushButton*** sudoku_button;
+
+
 };
 
 #endif // MAINWINDOW_H
