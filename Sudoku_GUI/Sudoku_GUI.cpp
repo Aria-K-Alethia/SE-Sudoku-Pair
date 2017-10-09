@@ -7,14 +7,21 @@
 #include "QGridLayout"
 #include "QHBoxLayout"
 #include "Sudoku.h"
+#include "QMessageBox"
 #include <iostream>
 #pragma comment(lib,"SudokuDll.lib")
+
+#define WINDOW_SIZE 1000
+#define WIN_GAME 1
+#define LOSE_GAME 0
+#define NOT_COMPLETE -1
 
 static QString welcomePage1Str[2] = { "NewGame","help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
 static int currentX = -1;
 static int currentY = -1;
 static bool tableClickable[LEN][LEN] = { 0 };
+static int solution[LEN*LEN];
 
 Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	: QMainWindow(parent),
@@ -22,7 +29,7 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 {
 	ui.setupUi(this);
 	this->setWindowTitle(tr("Sudoku Game"));
-
+	sudoku = new Sudoku();
 	//widget
 	mainWindow = new QStackedWidget();
 	welcomeWindow = new QStackedWidget();
@@ -72,44 +79,63 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	//Main game page
 	QVBoxLayout* mainLayout = new QVBoxLayout(gameWindow);
 	QGridLayout* puzzleLayout = new QGridLayout(gameWindow);
+	QHBoxLayout* hintAndTimerLayout = new QHBoxLayout(gameWindow);
 	QHBoxLayout* choicesLayout = new QHBoxLayout(gameWindow);
 	//Add puzzle buttons
-	puzzleButtons = new QPushButton**[9];
-	for (int i = 0; i < 9; i++) {
-		puzzleButtons[i] = new QPushButton*[9];
-		for (int j = 0; j < 9; j++) {
+	puzzleButtons = new QPushButton**[LEN];
+	for (int i = 0; i < LEN; i++) {
+		puzzleButtons[i] = new QPushButton*[LEN];
+		for (int j = 0; j < LEN; j++) {
 			puzzleButtons[i][j] = new QPushButton();
-			puzzleButtons[i][j]->setMinimumSize(30, 30);
+			puzzleButtons[i][j]->setMinimumSize(80,80);
 			puzzleButtons[i][j]->setStyleSheet("QPushButton{border:1px;background-color:white;border-style:solid}");
-
+			puzzleButtons[i][j]->setMaximumSize(80, 80);
 			puzzleButtons[i][j]->setAccessibleName(QString::number(i*LEN + j));
 			puzzleLayout->addWidget(puzzleButtons[i][j], i, j);
 			connect(puzzleButtons[i][j], &QPushButton::clicked, this, &Sudoku_GUI::pressButtonPuzzle);
 			puzzleButtons[i][j]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		}
 	}
-	puzzleLayout->setMargin(120);
+	//puzzleLayout set
+	puzzleLayout->setMargin(140);
 	puzzleLayout->setVerticalSpacing(0);
 	puzzleLayout->setHorizontalSpacing(0);
-	for (int i = 0; i < 9; ++i) {
+
+	/*for (int i = 0; i < 9; ++i) {
 		puzzleLayout->setColumnStretch(i, 1);
 		puzzleLayout->setRowStretch(i, 1);
 		puzzleLayout->setColumnMinimumWidth(i, 20);
-	}
+	}*/
+
+	//hintAndTimer:layout and component
+	QPushButton *button = new QPushButton("Hint");
+	button->setMinimumSize(QSize(80, 40));
+	button->setMaximumSize(QSize(80, 40));
+	hintAndTimerLayout->addWidget(button);
+	connect(button, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonHint);
+	
 
 	//Add choices buttons
 	QPushButton* choicesButtons[9];
 	QString temp;
 	for (int i = 0; i < 9; i++) {
 		choicesButtons[i] = new QPushButton(temp.setNum(i+1));
+		choicesButtons[i]->setMinimumSize(QSize(80, 80));
+		choicesButtons[i]->setMaximumSize(QSize(80, 80));
+		choicesButtons[i]->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 		connect(choicesButtons[i], &QPushButton::clicked, this, &Sudoku_GUI::pressButtonChoice);
 		choicesLayout->addWidget(choicesButtons[i], 1);
-	}
-	mainLayout->addLayout(puzzleLayout, 0);
-	mainLayout->addLayout(choicesLayout, 0);
 
-	this->setMinimumSize(QSize(1000, 1000));
-	this->setMaximumSize(QSize(1000, 1000));
+	}
+	choicesLayout->setMargin(0);
+	//Add all components to mainLayout
+	mainLayout->setSpacing(0);
+	mainLayout->addLayout(puzzleLayout, 1);
+	mainLayout->addLayout(hintAndTimerLayout, 1);
+	mainLayout->addLayout(choicesLayout, 1);
+
+	this->setMinimumSize(QSize(WINDOW_SIZE, WINDOW_SIZE));
+	this->setMaximumSize(QSize(WINDOW_SIZE, WINDOW_SIZE));
 
 }
 
@@ -150,12 +176,10 @@ void Sudoku_GUI::pressButtonPuzzle() {
 	int x = name / LEN;
 	int y = name % LEN;
 	if (tableClickable[x][y]) {
-		currentX = x;
-		currentY = y;
+		currentPositionSet(x, y);
 	}
 	else {
-		currentX = -1;
-		currentY = -1;
+		currentPositionSet(-1, -1);
 	}
 }
 
@@ -170,17 +194,34 @@ void Sudoku_GUI::pressButtonChoice() {
 		QPushButton *button = qobject_cast<QPushButton*>(sender());
 		int name = button->text().toInt();
 		puzzleButtons[currentX][currentY]->setText(QString::number(name));
-		currentX = -1;
-		currentY = -1;
+		checkGame();
+		currentPositionSet(-1, -1);
 	}
 }
 
+void Sudoku_GUI::pressButtonHint()
+{
+	/*
+		@overview:invoked when hint button clicked,give one possible hint on
+		currently selected position.
+	*/
+	if (currentX == -1 || currentY == -1) {
+		return;
+	}
+	puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN+currentY]));
+	
+}
+
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
-	sudoku = new Sudoku();
+	/*
+		@overview:invoked when player choose the degree of difficulty,set the game board.
+	*/
+	
 	int result[10][LEN*LEN];
 	sudoku->generate(10, degOfDifficulty, result);
 	srand((unsigned)time(nullptr));
 	int target = rand() % 10;
+	sudoku->solve(result[target], solution);
 	QString temp;
 	QString vac("");
 	for (int i = 0; i < LEN; ++i) {
@@ -194,5 +235,48 @@ void Sudoku_GUI::gameSet(int degOfDifficulty) {
 				puzzleButtons[i][j]->setText(temp.setNum(result[target][i*LEN + j]));
 			}
 		}
+	}
+}
+
+void Sudoku_GUI::currentPositionSet(int x, int y)
+{
+	/*
+		@overview:set the current postion of game board
+	*/
+	currentX = x;
+	currentY = y;
+}
+
+int Sudoku_GUI::checkGame() {
+	/*
+		@check whether the game is win,lose,or not complete,return the corresponding signal
+	*/
+	int* board = new int[LEN*LEN];
+	for (int i = 0; i < LEN; ++i) {
+		for (int j = 0; j < LEN; ++j) {
+			QString temp = puzzleButtons[i][j]->text();
+			if (temp == "") return NOT_COMPLETE;
+			int num = temp.toInt();
+			board[i*LEN + j] = num;
+		}
+	}
+	sudoku->convertToTwoDimension(board);
+	int flag;
+	if (sudoku->check()) {
+		flag =  WIN_GAME;
+	}
+	else flag = LOSE_GAME;
+	gameCompleted(flag);
+	return flag;
+}
+
+void Sudoku_GUI::gameCompleted(int flag) {
+	if (flag == LOSE_GAME) {
+		QMessageBox::information(NULL, QObject::tr("You Lose"), QObject::tr\
+			("The currently game you have solved is not valid,try to find the error and fix it"));
+	}
+	else if(flag == WIN_GAME) {
+		QMessageBox::information(NULL,QObject::tr("You Win"),QObject::tr\
+		("Congradulations!\nYou have won this game!"));
 	}
 }

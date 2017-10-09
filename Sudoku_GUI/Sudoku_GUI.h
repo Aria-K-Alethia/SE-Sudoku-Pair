@@ -18,6 +18,7 @@ public:
 	void pressButtonDifficulty();
 	void pressButtonPuzzle();
 	void pressButtonChoice();
+	void pressButtonHint();
 
 
 private:
@@ -29,5 +30,7 @@ private:
 	Sudoku* sudoku;
 
 	void gameSet(int degOfDiffculty);
-
+	void currentPositionSet(int x, int y);
+	int checkGame();
+	void gameCompleted(int flag);
 };
