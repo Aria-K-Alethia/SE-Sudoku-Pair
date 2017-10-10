@@ -8,7 +8,10 @@
 #include "QHBoxLayout"
 #include "Sudoku.h"
 #include "QMessageBox"
+#include "QTimer"
+#include "QTime"
 #include <iostream>
+#include <fstream>
 #pragma comment(lib,"SudokuDll.lib")
 
 #define WINDOW_SIZE 1000
@@ -18,10 +21,11 @@
 
 static QString welcomePage1Str[2] = { "NewGame","help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
+char* timeRecordFileName = "timerecord.txt";
 static int currentX = -1;
 static int currentY = -1;
 static bool tableClickable[LEN][LEN] = { 0 };
-static int solution[LEN*LEN];
+static int level;
 
 Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	: QMainWindow(parent),
@@ -30,6 +34,8 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	ui.setupUi(this);
 	this->setWindowTitle(tr("Sudoku Game"));
 	sudoku = new Sudoku();
+	begin = false;
+	initRecord();
 	//widget
 	mainWindow = new QStackedWidget();
 	welcomeWindow = new QStackedWidget();
@@ -108,11 +114,20 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	}*/
 
 	//hintAndTimer:layout and component
+	//hint button
 	QPushButton *button = new QPushButton("Hint");
 	button->setMinimumSize(QSize(80, 40));
 	button->setMaximumSize(QSize(80, 40));
 	hintAndTimerLayout->addWidget(button);
 	connect(button, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonHint);
+
+	//timer
+	timer = new QTimer(this);
+	timeLabel = new QLabel(this);
+	timeRecord = new QTime(0, 0, 0);
+	timeLabel->setText(timeRecord->toString("hh:mm:ss"));
+	hintAndTimerLayout->addWidget(timeLabel);
+	connect(timer, &QTimer::timeout, this, &Sudoku_GUI::timeUpdate);
 	
 
 	//Add choices buttons
@@ -134,9 +149,16 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	mainLayout->addLayout(hintAndTimerLayout, 1);
 	mainLayout->addLayout(choicesLayout, 1);
 
+	//Menu start game
+	for (int i = 0; i < 3; ++i) {
+		QAction *newGameMenuAction = new QAction(welcomePage2Str[i]);
+		ui.menuNewGame->addAction(newGameMenuAction);
+		connect(newGameMenuAction, &QAction::triggered, this, &Sudoku_GUI::newGameMenuClicked);
+	}
+
+
 	this->setMinimumSize(QSize(WINDOW_SIZE, WINDOW_SIZE));
 	this->setMaximumSize(QSize(WINDOW_SIZE, WINDOW_SIZE));
-
 }
 
 void Sudoku_GUI::pressButtonWelcome() {
@@ -208,20 +230,33 @@ void Sudoku_GUI::pressButtonHint()
 	if (currentX == -1 || currentY == -1) {
 		return;
 	}
+	int* board = new int[LEN*LEN];
+	int* solution = new int[LEN*LEN];
+	for (int i = 0; i < LEN; ++i) {
+		for (int j = 0; j < LEN; ++j) {
+			QString temp = puzzleButtons[i][j]->text();
+			int num;
+			if (temp == "" || (i == currentX && j == currentY)) num = 0;
+			else num = temp.toInt();
+			board[i*LEN + j] = num;
+		}
+	}
+	sudoku->solve(board, solution);
 	puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN+currentY]));
-	
+	checkGame();
 }
 
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
 	/*
-		@overview:invoked when player choose the degree of difficulty,set the game board.
+		@overview:invoked when player choose the degree of difficulty,init the game.
 	*/
-	
+	resetTimer();
+	level = degOfDifficulty;
+	begin = true;
 	int result[10][LEN*LEN];
 	sudoku->generate(10, degOfDifficulty, result);
 	srand((unsigned)time(nullptr));
 	int target = rand() % 10;
-	sudoku->solve(result[target], solution);
 	QString temp;
 	QString vac("");
 	for (int i = 0; i < LEN; ++i) {
@@ -236,6 +271,8 @@ void Sudoku_GUI::gameSet(int degOfDifficulty) {
 			}
 		}
 	}
+	//start timer
+	timer->start(1000);
 }
 
 void Sudoku_GUI::currentPositionSet(int x, int y)
@@ -249,7 +286,7 @@ void Sudoku_GUI::currentPositionSet(int x, int y)
 
 int Sudoku_GUI::checkGame() {
 	/*
-		@check whether the game is win,lose,or not complete,return the corresponding signal
+		@overview:check whether the game is win,lose,or not complete,return the corresponding signal
 	*/
 	int* board = new int[LEN*LEN];
 	for (int i = 0; i < LEN; ++i) {
@@ -261,6 +298,7 @@ int Sudoku_GUI::checkGame() {
 		}
 	}
 	sudoku->convertToTwoDimension(board);
+	delete board;
 	int flag;
 	if (sudoku->check()) {
 		flag =  WIN_GAME;
@@ -271,12 +309,151 @@ int Sudoku_GUI::checkGame() {
 }
 
 void Sudoku_GUI::gameCompleted(int flag) {
+	/*
+		@overview:invoked when the game board is full of number,check the game is valid or not,
+		showing the corresponding message.
+	*/
 	if (flag == LOSE_GAME) {
-		QMessageBox::information(NULL, QObject::tr("You Lose"), QObject::tr\
-			("The currently game you have solved is not valid,try to find the error and fix it"));
+		timer->stop();
+		if (QMessageBox::Ok == QMessageBox::information(NULL, QObject::tr("You Lose"), QObject::tr\
+			("The currently game you have solved is not valid,try to find the error and fix it"))) {
+			timer->start();
+		}
+		
 	}
 	else if(flag == WIN_GAME) {
-		QMessageBox::information(NULL,QObject::tr("You Win"),QObject::tr\
-		("Congradulations!\nYou have won this game!"));
+		timer->stop();
+		checkTimeRecord();
+		if (QMessageBox::Yes == QMessageBox::question(NULL, QObject::tr("You Win"), QObject::tr\
+			("Congradulations!\nYou have won this game!\nStart a new game?"), \
+			QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)) {
+			welcomeWindow->setCurrentIndex(1);
+			mainWindow->setCurrentIndex(0);
+		}
+		else {
+			welcomeWindow->setCurrentIndex(0);
+			mainWindow->setCurrentIndex(0);
+		}
 	}
+}
+
+void Sudoku_GUI::timeUpdate()
+{
+	/*
+		@overview:update timerecord every sec and update the time on timeLabel
+	*/
+	*timeRecord = timeRecord->addSecs(1);
+	QString timeString = timeRecord->toString("hh:mm:ss");
+	timeLabel->setText(timeString);
+}
+
+void Sudoku_GUI::newGameMenuClicked()
+{
+	/*
+		@overview:triggered when the new game action clicked on the menu
+	*/
+	if (begin) {
+		timer->stop();
+		if (QMessageBox::No == QMessageBox::question(this, tr("NewGame"), \
+			tr("Are you sure to discard the current game?"), \
+			QMessageBox::Yes | QMessageBox::No, \
+			QMessageBox::Yes)) {
+			timer->start(1000);
+			return;
+		}
+	}
+	QAction *action = qobject_cast<QAction*>(sender());
+	int i = 0;
+	for (; i < 3; ++i) {
+		if (action->text() == welcomePage2Str[i]) break;
+	}
+
+	if (!begin) {
+		begin = true;
+	}
+	gameSet(i + 1);
+}
+
+void Sudoku_GUI::resetTimer()
+{
+	/*
+		@overview:reset the timer and timerecord for the next game
+	*/
+	timer->stop();
+	timeRecord->setHMS(0, 0, 0);
+	QString timeString = timeRecord->toString("hh:mm:ss");
+	timeLabel->setText(timeString);
+}
+
+void Sudoku_GUI::checkTimeRecord()
+{
+	/*
+		@overview:invoked when player solves a game,check the time record in file,showing 
+		corresponding message,save new time record if exists.
+	*/
+	fstream timeRecordFile(timeRecordFileName, ios::in);
+	if (!timeRecordFile.is_open()) {
+		timeRecordFile.close();
+		initRecord();
+	}
+	else timeRecordFile.close();
+
+	timeRecordFile.open(timeRecordFileName, ios::in);
+	string record[3];
+	for (int i = 0; i < 3; ++i) {
+		getline(timeRecordFile, record[i]);
+	}
+	timeRecordFile.close();
+	QTime old;
+	int oldtime[3];
+	int count = 0;
+	int pos = 0;
+	char buffer[50] = { 0 };
+	for (int i = 0; i < record[level].length();++i) {
+		if (record[level][i] == ':') {
+			buffer[pos] = '\0';
+			oldtime[count] = atoi(buffer);
+			count++;
+			pos = 0;
+		}
+		else {
+			buffer[pos] = record[level][i];
+			pos++;
+		}
+	}
+	old.setHMS(oldtime[0],oldtime[1],oldtime[2]);
+	if (old > *timeRecord) {
+		QMessageBox::information(this, tr("Record"), "You have not break the record in this mode\n\
+the current record in this mode is:" + old.toString("hh::mm::ss"));
+		
+	}
+	else {
+		QMessageBox::information(this, tr("Record"),"Congradulation!You have broken the record in\
+in this mode\nThe new record is:" + timeRecord->toString("hh:mm:ss"));
+		timeRecordFile.open(timeRecordFileName, ios::out);
+		for (int i = 0; i < 3; ++i) {
+			if(i != level)
+				timeRecordFile << record[level] << endl;
+			else
+				timeRecordFile << timeRecord->toString("hh:mm:ss").toStdString() << endl;
+		}
+		timeRecordFile.close();
+	}
+	
+}
+
+void Sudoku_GUI::initRecord()
+{
+	/*
+		@overview:init the record file
+	*/
+	fstream timeRecordFile(timeRecordFileName, ios::in);
+	if (!timeRecordFile.is_open()) {
+		//not exist,construct one
+		timeRecordFile.close();
+		timeRecordFile.open(timeRecordFileName, ios::out);
+		char* header = "0:0:0\n0:0:0\n0:0:0\n";
+		timeRecordFile << header;
+	}
+	timeRecordFile.close();
 }

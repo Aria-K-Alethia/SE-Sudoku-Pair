@@ -7,6 +7,10 @@ class QStackedWidget;
 class QWidget;
 class QPushButton;
 class Sudoku;
+class QTime;
+class QTimer;
+class QLabel;
+
 
 class Sudoku_GUI : public QMainWindow
 {
@@ -28,9 +32,18 @@ private:
 	QWidget* gameWindow;
 	QPushButton*** puzzleButtons;
 	Sudoku* sudoku;
+	QTimer* timer;
+	QTime* timeRecord;
+	QLabel* timeLabel;
+	bool begin;
 
 	void gameSet(int degOfDiffculty);
 	void currentPositionSet(int x, int y);
 	int checkGame();
 	void gameCompleted(int flag);
+	void timeUpdate();
+	void newGameMenuClicked();
+	void resetTimer();
+	void checkTimeRecord();
+	void initRecord();
 };
