@@ -120,12 +120,14 @@ void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) throw(SudokuC
     //@overview: generate puzzles with restriction of difficulty level
     Sudoku::hasMode = true;
 	if (number > 10000 || number < 1) {
+		Sudoku::hasMode = false;
 		throw SudokuCountException();
 	}
 	/*if (number > sizeof(result) / (LEN * LEN * sizeof(int))) {
 		throw ResultRowTooFewException();
 	}*/
 	if (mode < EASYMODE || mode > HARDMODE) {
+		Sudoku::hasMode = false;
 		throw ModeRangeException();
 	}
     switch (mode) {
@@ -148,6 +150,19 @@ void Sudoku::generateCompleteN(int number, int result[][LEN * LEN]) {
 	//@overview:generate n sudoku 
 	//do some prepare
 	init();
+	//randomly set four place with an 
+	srand((unsigned)time(0));
+	int count = RANDOM_NUMBER;
+	while (count > 0) {
+		int target = rand() % (LEN*LEN);
+		int x = target / LEN + 1;
+		int y = target % LEN + 1;
+		int num = rand() % LEN + 1;
+		if (checkSolvePos(x, y, num)) {
+			board[x][y] = num + '0';
+			count--;
+		}
+	}
 	Sudoku::count = 0;
     traceBackN(1, 1, number, result);
 	
@@ -159,6 +174,7 @@ void Sudoku::generateCompleteNAndOutput(int number, char* filename) {
 	*/
 	fstream outFile(filename, ios::out);
 	Sudoku::count = 0;
+	init();
     traceBackWriteFile(1, 1, number, outFile);
 	outFile.close();
 }
@@ -427,10 +443,13 @@ inline void Sudoku::traceBackN(int i, int j, int n, int result[][LEN*LEN]) {
 		++i;
 		j = 1;
 	}
-
+	if (board[i][j] != '0') {
+		traceBackN(i, j + 1, n, result);
+		return;
+	}
 	for (int k = 1; k <= LEN; ++k) {
 		if (Sudoku::count >= n) return;
-		if (checkGeneratePos(i, j, k)) {   //check if it is ok to set k on (i,j)
+		if (checkSolvePos(i, j, k)) {   //check if it is ok to set k on (i,j)
 			board[i][j] = k + '0';
             traceBackN(i, j + 1, n, result);    //if can,recur to next place
 		}

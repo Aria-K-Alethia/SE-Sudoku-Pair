@@ -15,6 +15,7 @@ using namespace std;
 #define EASYMODE 1
 #define NORMALMODE 2
 #define HARDMODE 3
+#define RANDOM_NUMBER 4
 
 enum ModeRange {
 	EASYLOWER = 35,
