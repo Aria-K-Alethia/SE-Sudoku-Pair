@@ -17,11 +17,8 @@ class Sudoku_GUI : public QMainWindow
 
 public:
 	Sudoku_GUI(QWidget *parent = Q_NULLPTR);
-	void pressButtonWelcome();
-	void pressButtonDifficulty();
-	void pressButtonPuzzle();
-	void pressButtonChoice();
-	void pressButtonHint();
+
+	void setStyle();
 
 
 private:
@@ -45,4 +42,12 @@ private:
     void resetTimer();
     void checkTimeRecord();
     void initRecord();
+
+	void pressButtonWelcome();
+	void pressButtonDifficulty();
+	void pressButtonPuzzle();
+	void pressButtonChoice();
+	void pressButtonHint();
+	void pressButtonReturn();
+	
 };

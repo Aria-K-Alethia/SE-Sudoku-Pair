@@ -10,6 +10,7 @@
 #include "QMessageBox"
 #include "QTimer"
 #include "QTime"
+#include "QFile"
 #include <iostream>
 #include <fstream>
 #pragma comment(lib,"SudokuDll.lib")
@@ -19,6 +20,7 @@
 #define WIN_GAME 1
 #define LOSE_GAME 0
 #define NOT_COMPLETE -1
+#define STYLE_FILE_NAME "../Sudoku_GUI/Resources/stylesheet"
 
 static QString welcomePage1Str[2] = { "NewGame","help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
@@ -49,8 +51,10 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	//welcome window
 	QWidget* welcomeWidgetPage1 = new QWidget();
 	QWidget* welcomeWidgetPage2 = new QWidget();
+	QWidget* welcomeWidgetPage3 = new QWidget();
 	welcomeWindow->addWidget(welcomeWidgetPage1);
 	welcomeWindow->addWidget(welcomeWidgetPage2);
+	welcomeWindow->addWidget(welcomeWidgetPage3);
 	welcomeWindow->setCurrentIndex(0);
 
 	//welcome window page 1
@@ -82,6 +86,28 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 		welcomePage2Layout->addWidget(button);
 		welcomePage2Layout->addStretch(1);
 	}
+
+	//welcome window page 3
+	QVBoxLayout* welcomePage3Layout = new QVBoxLayout(welcomeWidgetPage3);
+	char* helpTitle = "Sudoku Rule";
+	char* helpInfo = "Sudoku is a logic-based,combinatorial number-placement puzzle.\n\
+The objective is to fill a 9x9 block with digits so that\n each column, each row,and \
+each of the nine 3x3 sub-bloc\n that compose the block contains all of the digits\
+ from 1 to 9.\n The puzzle setter provides a partially completed grid,\nwhich for a \
+well-posed puzzle has a single solution.";
+	QLabel* helpInfoTitle = new QLabel(tr(helpTitle));
+	QLabel* helpInfoLabel = new QLabel(tr(helpInfo));
+	helpInfoTitle->setAlignment(Qt::AlignHCenter);
+	helpInfoLabel->setAlignment(Qt::AlignHCenter | Qt::AlignCenter);
+	welcomePage3Layout->addWidget(helpInfoTitle);
+	welcomePage3Layout->addStretch(1);
+	welcomePage3Layout->addWidget(helpInfoLabel);
+	welcomePage3Layout->addStretch(1);
+	QPushButton *button = new QPushButton(QString("Return"));
+	connect(button, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonReturn);
+	welcomePage3Layout->addWidget(button);
+	welcomePage3Layout->setMargin(50);
+	welcomePage3Layout->setSpacing(0);
 
 	//Main game page
 	QVBoxLayout* mainLayout = new QVBoxLayout(gameWindow);
@@ -187,7 +213,7 @@ void Sudoku_GUI::pressButtonWelcome() {
 		welcomeWindow->setCurrentIndex(1);
 	}
 	else if (button->text() == welcomePage1Str[1]) {
-		//welcomeWindow->setCurrentIndex (2);
+		welcomeWindow->setCurrentIndex (2);
 	}
 }
 
@@ -263,10 +289,21 @@ void Sudoku_GUI::pressButtonHint()
             board[i*LEN + j] = num;
         }
     }
-    sudoku->solve(board, solution);
-	puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN+currentY]));
-	puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
-    checkGame();
+	if (sudoku->solve(board, solution)) {
+		puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN + currentY]));
+		puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
+		checkGame();
+	}
+	else {
+		QMessageBox::information(this, tr("Bad Sudoku"), tr("Can not give a hint.The current Sudoku\
+ is not valid\nPlease check the row,rolumn or 9x9 block to correct it."));
+	}
+	
+}
+
+void Sudoku_GUI::pressButtonReturn()
+{
+	welcomeWindow->setCurrentIndex(0);
 }
 
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
@@ -288,6 +325,7 @@ void Sudoku_GUI::gameSet(int degOfDifficulty) {
 			if (result[target][i*LEN + j] == 0) {
 				tableClickable[i][j] = true;
 				puzzleButtons[i][j]->setText(vac);
+				puzzleButtons[i][j]->setEnabled(true);
 				puzzleButtons[i][j]->setCheckable(true); // Able to be checked
 			}
 			else {
@@ -341,7 +379,7 @@ void Sudoku_GUI::gameCompleted(int flag) {
     */
 	if (flag == LOSE_GAME) {
         timer->stop();
-        if (QMessageBox::Ok == QMessageBox::information(NULL, QObject::tr("You Lose"), QObject::tr\
+        if (QMessageBox::Ok == QMessageBox::information(this, QObject::tr("You Lose"), QObject::tr\
              ("The currently game you have solved is not valid,try to find the error and fix it"))) {
             timer->start();
         }
@@ -349,6 +387,7 @@ void Sudoku_GUI::gameCompleted(int flag) {
 	else if(flag == WIN_GAME) {
         timer->stop();
         checkTimeRecord();
+		begin = false;
         if (QMessageBox::Yes == QMessageBox::question(NULL, QObject::tr("You Win"), QObject::tr\
              ("Congradulations!\nYou have won this game!\nStart a new game?"), \
              QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes)) {
@@ -387,14 +426,11 @@ void Sudoku_GUI::newGameMenuClicked() {
     }
     QAction *action = qobject_cast<QAction*>(sender());
     int i = 0;
-    for (; i < 3; ++i) {
-        if (action->text() == welcomePage2Str[i]) break;
-    }
-
-    if (!begin) {
-        begin = true;
-    }
+	for (; i < 3; ++i) {
+		if (action->text() == welcomePage2Str[i]) break;
+	}
     gameSet(i + 1);
+	mainWindow->setCurrentIndex(1);
 }
 
 void Sudoku_GUI::resetTimer() {
@@ -473,4 +509,12 @@ void Sudoku_GUI::initRecord() {
         timeRecordFile << header;
     }
     timeRecordFile.close();
+}
+
+
+void Sudoku_GUI::setStyle() {
+	QFile qss(STYLE_FILE_NAME);
+	qss.open(QFile::ReadOnly);
+	qApp->setStyleSheet(qss.readAll());
+	qss.close();
 }
