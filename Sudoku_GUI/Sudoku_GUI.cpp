@@ -22,7 +22,7 @@
 #define NOT_COMPLETE -1
 #define STYLE_FILE_NAME "../Sudoku_GUI/Resources/stylesheet"
 
-static QString welcomePage1Str[2] = { "NewGame","help" };
+static QString welcomePage1Str[2] = { "NewGame","Help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
 char* timeRecordFileName = "timerecord.txt";
 static int currentX = -1;
@@ -43,6 +43,7 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	mainWindow = new QStackedWidget();
 	welcomeWindow = new QStackedWidget();
 	gameWindow = new QWidget();
+    setBackgroundColorForWindow(gameWindow, 40, 40, 40);
 	mainWindow->addWidget(welcomeWindow);
 	mainWindow->addWidget(gameWindow);
 	mainWindow->setCurrentIndex(0);
@@ -52,15 +53,19 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	QWidget* welcomeWidgetPage1 = new QWidget();
 	QWidget* welcomeWidgetPage2 = new QWidget();
 	QWidget* welcomeWidgetPage3 = new QWidget();
+    setBackgroundColorForWindow(welcomeWidgetPage1, 40, 40, 40);
+    setBackgroundColorForWindow(welcomeWidgetPage2, 40, 40, 40);
+    setBackgroundColorForWindow(welcomeWidgetPage3, 40, 40, 40);
 	welcomeWindow->addWidget(welcomeWidgetPage1);
 	welcomeWindow->addWidget(welcomeWidgetPage2);
 	welcomeWindow->addWidget(welcomeWidgetPage3);
 	welcomeWindow->setCurrentIndex(0);
 
 	//welcome window page 1
-	QVBoxLayout* welcomePage1Layout = new QVBoxLayout(welcomeWidgetPage1);
+    QVBoxLayout* welcomePage1Layout = new QVBoxLayout(welcomeWidgetPage1);
 	welcomePage1Layout->addStretch(1);
 	QLabel* welcomeLabel = new QLabel(tr("Sudoku Game"));
+    welcomeLabel->setObjectName("subtitleLabel");
 	welcomeLabel->setAlignment(Qt::AlignHCenter);
 	welcomePage1Layout->addWidget(welcomeLabel);
 	welcomePage1Layout->addStretch(2);
@@ -75,7 +80,8 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 
 	//welcome window page 2
 	QVBoxLayout* welcomePage2Layout = new QVBoxLayout(welcomeWidgetPage2);
-	QLabel* chooseDifficultyLabel = new QLabel(tr("choose difficulty"));
+	QLabel* chooseDifficultyLabel = new QLabel(tr("Choose Difficulty"));
+    chooseDifficultyLabel->setObjectName("subtitleLabel");
 	chooseDifficultyLabel->setAlignment(Qt::AlignHCenter);
 	welcomePage2Layout->addWidget(chooseDifficultyLabel);
 	welcomePage2Layout->addStretch(2);
@@ -97,12 +103,10 @@ each of the nine 3x3 sub-bloc\n that compose the block contains all of the digit
 well-posed puzzle has a single solution.";
 	QLabel* helpInfoTitle = new QLabel(tr(helpTitle));
 	QLabel* helpInfoLabel = new QLabel(tr(helpInfo));
-	helpInfoTitle->setAlignment(Qt::AlignHCenter);
-	helpInfoLabel->setAlignment(Qt::AlignHCenter | Qt::AlignCenter);
-	welcomePage3Layout->addWidget(helpInfoTitle);
-	welcomePage3Layout->addStretch(1);
-	welcomePage3Layout->addWidget(helpInfoLabel);
-	welcomePage3Layout->addStretch(1);
+    helpInfoTitle->setObjectName("subtitleLabel");
+    helpInfoLabel->setObjectName("highlightLabel");
+	welcomePage3Layout->addWidget(helpInfoTitle, 1, Qt::AlignHCenter);
+	welcomePage3Layout->addWidget(helpInfoLabel, 1, Qt::AlignHCenter | Qt::AlignTop);
 	QPushButton *button = new QPushButton(QString("Return"));
 	connect(button, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonReturn);
 	welcomePage3Layout->addWidget(button);
@@ -133,13 +137,21 @@ well-posed puzzle has a single solution.";
             puzzleButtons[i][j]->setMaximumSize(60, 60);
             // Set button style
             if (i == 0 && j == 0) {
-                puzzleButtons[i][j]->setObjectName("puzzleButtonTLCorner");
+                puzzleButtons[i][j]->setObjectName("puzzleButtonTLCorner"); // Top left
             } else if (i == 0 && j == LEN - 1) {
-                puzzleButtons[i][j]->setObjectName("puzzleButtonTRCorner");
+                puzzleButtons[i][j]->setObjectName("puzzleButtonTRCorner"); // Top right
             } else if (i == LEN - 1 && j == 0) {
-                puzzleButtons[i][j]->setObjectName("puzzleButtonBLCorner");
+                puzzleButtons[i][j]->setObjectName("puzzleButtonBLCorner"); // Bottom left
             } else if (i == LEN - 1 && j == LEN - 1) {
-                puzzleButtons[i][j]->setObjectName("puzzleButtonBRCorner");
+                puzzleButtons[i][j]->setObjectName("puzzleButtonBRCorner"); // Bottom right
+            } else if (j == 2 || j == 5) {
+                if (i == 2 || i == 5) {
+                    puzzleButtons[i][j]->setObjectName("puzzleButtonBRE"); //Bottom Right edge
+                } else {
+                    puzzleButtons[i][j]->setObjectName("puzzleButtonRE"); // Right edge
+                }
+            } else if (i == 2 || i == 5) {
+                puzzleButtons[i][j]->setObjectName("puzzleButtonBE"); // Bottom edge
             } else {
                 puzzleButtons[i][j]->setObjectName("puzzleButton");
             }
@@ -148,28 +160,29 @@ well-posed puzzle has a single solution.";
 			connect(puzzleButtons[i][j], &QPushButton::clicked, this, &Sudoku_GUI::pressButtonPuzzle);
 		}
 	}
-	//puzzleLayout set
-	//puzzleLayout->setMargin(90);
-    //puzzleLayout->set
     puzzleLayout->setSpacing(0);
 
-	//hintAndTimer:layout and component
+	//Hint, Timer and Displace:layout and component
         // Hint
 	QPushButton *hintButton = new QPushButton("Hint");
-	hintButton->setMinimumSize(QSize(60, 60));
-	hintButton->setMaximumSize(QSize(60, 60));
-    hintAndTimerLayout->addStretch(0);
-	hintAndTimerLayout->addWidget(hintButton);
+    hintButton->setObjectName("blueButton");
+	hintAndTimerLayout->addWidget(hintButton, 1, Qt::AlignHCenter);
 	connect(hintButton, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonHint);
 	
         // Timer
     timer = new QTimer(this);
     timeLabel = new QLabel(this);
+    timeLabel->setObjectName("highlightLabel");
     timeRecord = new QTime(0, 0, 0);
     timeLabel->setText(timeRecord->toString("hh:mm:ss"));
-    hintAndTimerLayout->addStretch(1);
-    hintAndTimerLayout->addWidget(timeLabel);
+    hintAndTimerLayout->addWidget(timeLabel, 1, Qt::AlignHCenter);
     connect(timer, &QTimer::timeout, this, &Sudoku_GUI::timeUpdate);
+
+        //Displace
+    QPushButton *displaceButton = new QPushButton("Replace");
+    displaceButton->setObjectName("displaceButton");
+    hintAndTimerLayout->addWidget(displaceButton, 1, Qt::AlignHCenter);
+    connect(displaceButton, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonDisplace);
 
 	//Add choices buttons
 	QPushButton* choicesButtons[LEN];
@@ -205,106 +218,6 @@ well-posed puzzle has a single solution.";
 	//welcomeWindow->setCurrentIndex(1); // Debugging code
 }
 
-// Button methods beneath
-void Sudoku_GUI::pressButtonWelcome() {
-	//overview: Choose to enter game or view help
-	QPushButton* button = qobject_cast<QPushButton*>(sender());
-	if (button->text() == welcomePage1Str[0]) {
-		welcomeWindow->setCurrentIndex(1);
-	}
-	else if (button->text() == welcomePage1Str[1]) {
-		welcomeWindow->setCurrentIndex (2);
-	}
-}
-
-void Sudoku_GUI::pressButtonDifficulty() {
-	//overview: Switch to game view when difficulty button pressed
-	QPushButton* button = qobject_cast<QPushButton*>(sender());
-	int i;
-	for (i = 0; i < 3; ++i) {
-		if (button->text() == welcomePage2Str[i]) {
-			break;
-		}
-	}
-	mainWindow->setCurrentIndex(1);
-	//Generate sudoku puzzle with different difficulty
-	gameSet(i + 1);
-}
-
-void Sudoku_GUI::pressButtonPuzzle() {
-	/*
-		@overview: Invoked when puzzle buttons pressed
-		check the position if it is clickable,if so,set current x and y;
-	*/
-	QPushButton *button = qobject_cast<QPushButton*>(sender());
-
-	int name = button->accessibleName().toInt();
-	int x = name / LEN;
-	int y = name % LEN;
-	if (tableClickable[x][y]) { // Numbers in unclickable button can't be changed
-        if (currentX != -1 && currentY != -1) { // Unchecked pressed puzzle button 
-            puzzleButtons[currentX][currentY]->setChecked(false);
-        }
-        currentPositionSet(x, y);
-	}
-	else {
-		currentPositionSet(-1, -1);
-	}
-}
-
-void Sudoku_GUI::pressButtonChoice() {
-	/*
-		@overview:invoked if choice button clicked
-	*/
-	if (currentX == -1 && currentY == -1) {
-		return;
-	}
-	else {
-		QPushButton *button = qobject_cast<QPushButton*>(sender());
-		int name = button->text().toInt();
-		puzzleButtons[currentX][currentY]->setText(QString::number(name));
-		checkGame();
-		puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
-		currentPositionSet(-1, -1);
-	}
-}
-
-void Sudoku_GUI::pressButtonHint()
-{
-	/*
-		@overview:invoked when hint button clicked,give one possible hint on
-		currently selected position.
-	*/
-	if (currentX == -1 || currentY == -1) {
-		return;
-	}
-    int* board = new int[LEN*LEN];
-    int* solution = new int[LEN*LEN];
-    for (int i = 0; i < LEN; ++i) {
-        for (int j = 0; j < LEN; ++j) {
-            QString temp = puzzleButtons[i][j]->text();
-            int num;
-            if (temp == "" || (i == currentX && j == currentY)) num = 0;
-            else num = temp.toInt();
-            board[i*LEN + j] = num;
-        }
-    }
-	if (sudoku->solve(board, solution)) {
-		puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN + currentY]));
-		puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
-		checkGame();
-	}
-	else {
-		QMessageBox::information(this, tr("Bad Sudoku"), tr("Can not give a hint.The current Sudoku\
- is not valid\nPlease check the row,rolumn or 9x9 block to correct it."));
-	}
-	
-}
-
-void Sudoku_GUI::pressButtonReturn()
-{
-	welcomeWindow->setCurrentIndex(0);
-}
 
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
 	/*
@@ -517,4 +430,119 @@ void Sudoku_GUI::setStyle() {
 	qss.open(QFile::ReadOnly);
 	qApp->setStyleSheet(qss.readAll());
 	qss.close();
+}
+
+void Sudoku_GUI::setBackgroundColorForWindow(QWidget* window, int red, int green, int blue) {
+    QPalette pal(window->palette());
+    QColor color = QColor(red, green, blue);
+    pal.setColor(QPalette::Background, color);
+    window->setAutoFillBackground(true);
+    window->setPalette(pal);
+    window->show();
+}
+
+// Button methods beneath
+void Sudoku_GUI::pressButtonWelcome() {
+    //overview: Choose to enter game or view help
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    if (button->text() == welcomePage1Str[0]) {
+        welcomeWindow->setCurrentIndex(1);
+    } else if (button->text() == welcomePage1Str[1]) {
+        welcomeWindow->setCurrentIndex(2);
+    }
+}
+
+void Sudoku_GUI::pressButtonDifficulty() {
+    //overview: Switch to game view when difficulty button pressed
+    QPushButton* button = qobject_cast<QPushButton*>(sender());
+    int i;
+    for (i = 0; i < 3; ++i) {
+        if (button->text() == welcomePage2Str[i]) {
+            break;
+        }
+    }
+    mainWindow->setCurrentIndex(1);
+    //Generate sudoku puzzle with different difficulty
+    gameSet(i + 1);
+}
+
+void Sudoku_GUI::pressButtonPuzzle() {
+    /*
+    @overview: Invoked when puzzle buttons pressed
+    check the position if it is clickable,if so,set current x and y;
+    */
+    QPushButton *button = qobject_cast<QPushButton*>(sender());
+
+    int name = button->accessibleName().toInt();
+    int x = name / LEN;
+    int y = name % LEN;
+    if (tableClickable[x][y]) { // Numbers in unclickable button can't be changed
+        if (currentX != -1 && currentY != -1) { // Unchecked pressed puzzle button 
+            puzzleButtons[currentX][currentY]->setChecked(false);
+        }
+        currentPositionSet(x, y);
+    } else {
+        currentPositionSet(-1, -1);
+    }
+}
+
+void Sudoku_GUI::pressButtonChoice() {
+    /*
+    @overview:invoked if choice button clicked
+    */
+    if (currentX == -1 && currentY == -1) {
+        return;
+    } else {
+        QPushButton *button = qobject_cast<QPushButton*>(sender());
+        int name = button->text().toInt();
+        puzzleButtons[currentX][currentY]->setText(QString::number(name));
+        checkGame();
+        puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
+        currentPositionSet(-1, -1);
+    }
+}
+
+void Sudoku_GUI::pressButtonHint() {
+    /*
+    @overview:invoked when hint button clicked,give one possible hint on
+    currently selected position.
+    */
+    if (currentX == -1 || currentY == -1) {
+        return;
+    }
+    int* board = new int[LEN*LEN];
+    int* solution = new int[LEN*LEN];
+    for (int i = 0; i < LEN; ++i) {
+        for (int j = 0; j < LEN; ++j) {
+            QString temp = puzzleButtons[i][j]->text();
+            int num;
+            if (temp == "" || (i == currentX && j == currentY)) num = 0;
+            else num = temp.toInt();
+            board[i*LEN + j] = num;
+        }
+    }
+    if (sudoku->solve(board, solution)) {
+        puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN + currentY]));
+        puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
+        checkGame();
+    } else {
+        QMessageBox::information(this, tr("Bad Sudoku"), tr("Can not give a hint.The current Sudoku\
+ is not valid\nPlease check the row,rolumn or 9x9 block to correct it."));
+    }
+
+}
+
+void Sudoku_GUI::pressButtonReturn() {
+    welcomeWindow->setCurrentIndex(0);
+}
+
+void Sudoku_GUI::pressButtonDisplace() {
+    /*
+    @overview:invoked when replace button clicked, replace number in selected
+    button.
+    */
+    QString nullStr = QString("");
+    puzzleButtons[currentX][currentY]->setText(nullStr);
+    puzzleButtons[currentX][currentY]->setChecked(false);
+    checkGame();
 }

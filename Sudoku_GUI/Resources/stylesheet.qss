@@ -590,10 +590,10 @@ QSpinBox::down-button:enabled:hover {
 }
 
 /**********??**********/
-QLabel#grayLabel {
+QLabel#subtitleLabel {
+	font-size: 35px;
         color: rgb(175, 175, 175);
 }
-
 QLabel#highlightLabel {
         color: rgb(175, 175, 175);
 }
@@ -704,7 +704,7 @@ QPushButton{
         border-radius: 4px;
         border: none;
         width: 75px;
-        height: 25px;
+        height: 40px;
 }
 QPushButton:enabled {
         background: rgb(68, 69, 73);
@@ -768,6 +768,29 @@ QPushButton#puzzleButtonBRCorner {
 	border-bottom-right-radius: 4px;
     	border-width: 1px;
     	border-style: solid;
+}
+QPushButton#puzzleButtonRE {
+	border-radius: 0;
+	border-width: 1px;
+	border-right-width: 3px;
+    	border-style: solid;
+}
+QPushButton#puzzleButtonBE {
+	border-radius: 0;
+    	border-width: 1px;
+	border-bottom-width: 3px;
+    	border-style: solid;
+}
+QPushButton#puzzleButtonBRE {
+	border-radius: 0;
+    	border-width: 1px;
+        border-right-width:3px;
+	border-bottom-width: 3px;
+	border-style: solid;
+}
+QPushButton#hintButton {
+	width: 107px;
+	height:60px;
 }
 QPushButton#selectButton {
         border: none;
@@ -866,18 +889,16 @@ QPushButton#closeButton:pressed {
         image: url(:/Black/closePressed);
 }
 
-QPushButton#skinButton {
-        border-radius: none;
-        border-bottom-left-radius: 4px;
-        border-bottom-right-radius: 4px;
+QPushButton#displaceButton {
+        border-radius: 4px;
         background: rgb(50, 50, 50);
-        image: url(:/Black/skin);
 }
-QPushButton#skinButton:hover {
+
+QPushButton#displaceButton:hover {
         background: rgb(60, 60, 60);
         image: url(:/Black/skinHover);
 }
-QPushButton#skinButton:pressed {
+QPushButton#displaceButton:pressed {
         background: rgb(55, 55, 55);
         image: url(:/Black/skinPressed);
 }
@@ -910,15 +931,15 @@ QPushButton#closeTipButton:pressed {
         border-image: url(:/Black/closePressed);
 }
 
-QPushButton#changeSkinButton{
+QPushButton#changedisplaceButton{
         border-radius: 4px;
         border: 2px solid rgb(41, 41, 41);
         background: rgb(51, 51, 51);
 }
-QPushButton#changeSkinButton:hover{
+QPushButton#changedisplaceButton:hover{
         border-color: rgb(45, 45, 45);
 }
-QPushButton#changeSkinButton:pressed, QPushButton#changeSkinButton:checked{
+QPushButton#changedisplaceButton:pressed, QPushButton#changedisplaceButton:checked{
         border-color: rgb(0, 160, 230);
 }
 

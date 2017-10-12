@@ -42,6 +42,7 @@ private:
     void resetTimer();
     void checkTimeRecord();
     void initRecord();
+    void setBackgroundColorForWindow(QWidget* window, int red, int green, int blue);
 
 	void pressButtonWelcome();
 	void pressButtonDifficulty();
@@ -49,5 +50,5 @@ private:
 	void pressButtonChoice();
 	void pressButtonHint();
 	void pressButtonReturn();
-	
+    void pressButtonDisplace();
 };
