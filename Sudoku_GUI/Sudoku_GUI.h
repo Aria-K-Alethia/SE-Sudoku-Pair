@@ -6,7 +6,6 @@
 class QStackedWidget;
 class QWidget;
 class QPushButton;
-class Sudoku;
 class QTime;
 class QTimer;
 class QLabel;
@@ -27,7 +26,6 @@ private:
 	QStackedWidget* welcomeWindow;
 	QWidget* gameWindow;
 	QPushButton*** puzzleButtons;
-	Sudoku* sudoku;
     QTimer* timer;
     QTime* timeRecord;
     QLabel* timeLabel;

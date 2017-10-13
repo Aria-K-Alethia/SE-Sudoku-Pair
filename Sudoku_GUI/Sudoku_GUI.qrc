@@ -1,4 +1,5 @@
 <RCC>
-    <qresource prefix="Sudoku_GUI">
+    <qresource prefix="/Sudoku_GUI">
+        <file>Resources/stylesheet.qss</file>
     </qresource>
 </RCC>

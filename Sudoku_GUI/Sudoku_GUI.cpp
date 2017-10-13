@@ -6,14 +6,15 @@
 #include "QLabel"
 #include "QGridLayout"
 #include "QHBoxLayout"
-#include "Sudoku.h"
 #include "QMessageBox"
 #include "QTimer"
 #include "QTime"
 #include "QFile"
+#include "SoduCore.h"
 #include <iostream>
 #include <fstream>
-#pragma comment(lib,"SudokuDll.lib")
+#include <memory>
+#pragma comment(lib,"./SoduCore.lib")
 
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 960
@@ -21,6 +22,7 @@
 #define LOSE_GAME 0
 #define NOT_COMPLETE -1
 #define STYLE_FILE_NAME "../Sudoku_GUI/Resources/stylesheet"
+#define LEN 9
 
 static QString welcomePage1Str[2] = { "NewGame","Help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
@@ -30,13 +32,48 @@ static int currentY = -1;
 static bool tableClickable[LEN][LEN] = { 0 };
 static int level;
 
+//below are some necessary when we change Core
+
+int** createArray(int a, int b) {
+	/*
+		@overview:new a array,with axb size.return the pointer of this array.
+	*/
+	int** ret;
+	ret = new int*[a];
+	for (int i = 0; i < a; ++i) {
+		ret[i] = new int[b];
+	}
+	return ret;
+}
+
+bool check(int* board) {
+	bool used1[LEN+1] = { 0 };
+	bool used2[LEN+1] = { 0 };
+	bool used3[LEN+1] = { 0 };
+	
+	//check the row
+	for (int i = 0; i < 9; ++i) {
+		for (int j = 0; j < 9; ++j) {
+			if (board[i*LEN + j] == 0 || !used1[board[i*LEN + j]]) used1[board[i * LEN + j]] = true;
+			else return false;
+			if (board[j*LEN + i] == 0 || !used2[board[j*LEN + i]]) used2[board[j*LEN + i]] = true;
+			else return false;
+			int pos = ((i / 3) * 27 + (i % 3) * 3 + (j / 3) * 9 + (j % 3));
+			if (board[pos]==0 || !used3[board[pos]])used3[board[pos]] = true;
+			else return false;
+		}
+		memset(used1, 0, LEN + 1);
+		memset(used2, 0, LEN + 1);
+		memset(used3, 0, LEN + 1);
+	}
+	return true;
+}
+
 Sudoku_GUI::Sudoku_GUI(QWidget *parent)
-	: QMainWindow(parent),
-	sudoku(nullptr)
+	: QMainWindow(parent)
 {
 	ui.setupUi(this);
 	this->setWindowTitle(tr("Sudoku Game"));
-	sudoku = new Sudoku();
     begin = false;
     initRecord();
 	//widget
@@ -219,6 +256,7 @@ well-posed puzzle has a single solution.";
 }
 
 
+
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
 	/*
 		@overview:invoked when player choose the degree of difficulty,init the game.
@@ -227,8 +265,8 @@ void Sudoku_GUI::gameSet(int degOfDifficulty) {
     resetTimer();
     level = degOfDifficulty;
     begin = true;
-	int result[10][LEN*LEN];
-	sudoku->generate(10, degOfDifficulty, result);
+	int** result = createArray(10, LEN*LEN);
+	generate_m(10, degOfDifficulty, result);
 	srand((unsigned)time(nullptr));
 	int target = rand() % 10;
 	QString temp;
@@ -274,10 +312,8 @@ int Sudoku_GUI::checkGame() {
 			board[i*LEN + j] = num;
 		}
 	}
-	sudoku->convertToTwoDimension(board);
-    delete board;
-	int flag;
-	if (sudoku->check()) {
+	bool flag;
+	if (check(board)) {
 		flag =  WIN_GAME;
 	}
 	else flag = LOSE_GAME;
@@ -361,14 +397,14 @@ void Sudoku_GUI::checkTimeRecord() {
     @overview:invoked when player solves a game,check the time record in file,showing
     corresponding message,save new time record if exists.
     */
-    fstream timeRecordFile(timeRecordFileName, ios::in);
+    std::fstream timeRecordFile(timeRecordFileName, std::ios::in);
     if (!timeRecordFile.is_open()) {
         timeRecordFile.close();
         initRecord();
     } else timeRecordFile.close();
 
-    timeRecordFile.open(timeRecordFileName, ios::in);
-    string record[3];
+    timeRecordFile.open(timeRecordFileName, std::ios::in);
+    std::string record[3];
     for (int i = 0; i < 3; ++i) {
         getline(timeRecordFile, record[i]);
     }
@@ -396,13 +432,13 @@ the current record in this mode is:" + old.toString("hh::mm::ss"));
 
     } else {
         QMessageBox::information(this, tr("Record"), "Congradulation!You have broken the record in\
-in this mode\nThe new record is:" + timeRecord->toString("hh:mm:ss"));
-        timeRecordFile.open(timeRecordFileName, ios::out);
+this mode\nThe new record is:" + timeRecord->toString("hh:mm:ss"));
+        timeRecordFile.open(timeRecordFileName, std::ios::out);
         for (int i = 0; i < 3; ++i) {
             if (i != level)
-                timeRecordFile << record[level] << endl;
+                timeRecordFile << record[level] << std::endl;
             else
-                timeRecordFile << timeRecord->toString("hh:mm:ss").toStdString() << endl;
+                timeRecordFile << timeRecord->toString("hh:mm:ss").toStdString() << std::endl;
         }
         timeRecordFile.close();
     }
@@ -413,11 +449,11 @@ void Sudoku_GUI::initRecord() {
     /*
     @overview:init the record file
     */
-    fstream timeRecordFile(timeRecordFileName, ios::in);
+    std::fstream timeRecordFile(timeRecordFileName, std::ios::in);
     if (!timeRecordFile.is_open()) {
         //not exist,construct one
         timeRecordFile.close();
-        timeRecordFile.open(timeRecordFileName, ios::out);
+        timeRecordFile.open(timeRecordFileName, std::ios::out);
         char* header = "0:0:0\n0:0:0\n0:0:0\n";
         timeRecordFile << header;
     }
@@ -425,12 +461,6 @@ void Sudoku_GUI::initRecord() {
 }
 
 
-void Sudoku_GUI::setStyle() {
-	QFile qss(STYLE_FILE_NAME);
-	qss.open(QFile::ReadOnly);
-	qApp->setStyleSheet(qss.readAll());
-	qss.close();
-}
 
 void Sudoku_GUI::setBackgroundColorForWindow(QWidget* window, int red, int green, int blue) {
     QPalette pal(window->palette());
@@ -521,15 +551,16 @@ void Sudoku_GUI::pressButtonHint() {
             board[i*LEN + j] = num;
         }
     }
-    if (sudoku->solve(board, solution)) {
+	if (!check(board)) {
+		QMessageBox::information(this, tr("Bad Sudoku"), tr("Can not give a hint.The current Sudoku\
+ is not valid\nPlease check the row,rolumn or 9x9 block to correct it."));
+		return;
+	}
+    if (solve_s(board, solution)) {
         puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN + currentY]));
         puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
         checkGame();
-    } else {
-        QMessageBox::information(this, tr("Bad Sudoku"), tr("Can not give a hint.The current Sudoku\
- is not valid\nPlease check the row,rolumn or 9x9 block to correct it."));
-    }
-
+	}
 }
 
 void Sudoku_GUI::pressButtonReturn() {
