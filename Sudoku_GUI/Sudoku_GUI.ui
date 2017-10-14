@@ -28,7 +28,19 @@
      <string>NewGame</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuSave">
+    <property name="title">
+     <string>Save</string>
+    </property>
+   </widget>
+   <widget class="QMenu" name="menuLoad">
+    <property name="title">
+     <string>Load</string>
+    </property>
+   </widget>
    <addaction name="menuNewGame"/>
+   <addaction name="menuSave"/>
+   <addaction name="menuLoad"/>
   </widget>
   <widget class="QToolBar" name="mainToolBar">
    <attribute name="toolBarArea">
