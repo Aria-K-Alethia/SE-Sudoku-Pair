@@ -11,6 +11,7 @@
 #include "QTimer"
 #include "QTime"
 #include "QFile"
+#include "QTextStream"
 #include <iostream>
 #include <fstream>
 #pragma comment(lib,"SudokuDll.lib")
@@ -20,10 +21,14 @@
 #define WIN_GAME 1
 #define LOSE_GAME 0
 #define NOT_COMPLETE -1
-#define STYLE_FILE_NAME "../Sudoku_GUI/Resources/stylesheet"
+#define STYLE_FILE_NAME "Resources/stylesheet.qss"
+#define SAVEDATA_FILE_NAME "savedata.txt"
+#define SAVE_CHOICE_COUNT 3
 
 static QString welcomePage1Str[2] = { "NewGame","Help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
+static QString saveChoices[SAVE_CHOICE_COUNT] = { "Save record 1", "Save record 2", "Save record 3" };
+static QString loadChoices[SAVE_CHOICE_COUNT] = { "Load record 1", "Load record 2", "Load record 3" };
 char* timeRecordFileName = "timerecord.txt";
 static int currentX = -1;
 static int currentY = -1;
@@ -70,6 +75,7 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	welcomePage1Layout->addWidget(welcomeLabel);
 	welcomePage1Layout->addStretch(2);
 	welcomePage1Layout->setMargin(200);
+        //Add new game & help buttons
 	for (int i = 0; i < 2; ++i) {
 		QPushButton *button = new QPushButton(welcomePage1Str[i]);
 		welcomePage1Layout->addWidget(button);
@@ -86,6 +92,7 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 	welcomePage2Layout->addWidget(chooseDifficultyLabel);
 	welcomePage2Layout->addStretch(2);
 	welcomePage2Layout->setMargin(180);
+        // Add difficulty choice buttons
 	for (int i = 0; i < 3; ++i) {
 		QPushButton *button = new QPushButton(welcomePage2Str[i]);
 		connect(button, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonDifficulty);
@@ -179,7 +186,7 @@ well-posed puzzle has a single solution.";
     connect(timer, &QTimer::timeout, this, &Sudoku_GUI::timeUpdate);
 
         //Displace
-    QPushButton *displaceButton = new QPushButton("Replace");
+    QPushButton *displaceButton = new QPushButton("Displace");
     displaceButton->setObjectName("displaceButton");
     hintAndTimerLayout->addWidget(displaceButton, 1, Qt::AlignHCenter);
     connect(displaceButton, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonDisplace);
@@ -205,19 +212,29 @@ well-posed puzzle has a single solution.";
     mainLayout->addStretch(1);
 	mainLayout->addLayout(choicesLayout, 1);
 
-    //Menu start game
+    // Menu start game
     for (int i = 0; i < 3; ++i) {
         QAction *newGameMenuAction = new QAction(welcomePage2Str[i]);
         ui.menuNewGame->addAction(newGameMenuAction);
-        connect(newGameMenuAction, &QAction::triggered, this, &Sudoku_GUI::newGameMenuClicked);
+        connect(newGameMenuAction, &QAction::triggered, this, &Sudoku_GUI::pressMenuButtonNewGame);
     }
 
+    // Menu save & load game
+    for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
+        QAction *saveMenuAction = new QAction(saveChoices[i]);
+        QAction *loadMenuAction = new QAction(loadChoices[i]);
+        ui.menuSave->addAction(saveMenuAction);
+        connect(saveMenuAction, &QAction::triggered, this, &Sudoku_GUI::pressMenuButtonSave);
+        ui.menuLoad->addAction(loadMenuAction);
+        connect(loadMenuAction, &QAction::triggered, this, &Sudoku_GUI::pressMenuButtonLoad);
+    }
+
+    // Window size set fixxed 
 	this->setMinimumSize(QSize(WINDOW_WIDTH, WINDOW_HEIGHT));
 	this->setMaximumSize(QSize(WINDOW_WIDTH, WINDOW_HEIGHT));
 
-	//welcomeWindow->setCurrentIndex(1); // Debugging code
+	welcomeWindow->setCurrentIndex(1); // Debugging code
 }
-
 
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
 	/*
@@ -323,29 +340,6 @@ void Sudoku_GUI::timeUpdate() {
     timeLabel->setText(timeString);
 }
 
-void Sudoku_GUI::newGameMenuClicked() {
-    /*
-    @overview:triggered when the new game action clicked on the menu
-    */
-    if (begin) {
-        timer->stop();
-        if (QMessageBox::No == QMessageBox::question(this, tr("NewGame"), \
-            tr("Are you sure to discard the current game?"), \
-            QMessageBox::Yes | QMessageBox::No, \
-            QMessageBox::Yes)) {
-            timer->start(1000);
-            return;
-        }
-    }
-    QAction *action = qobject_cast<QAction*>(sender());
-    int i = 0;
-	for (; i < 3; ++i) {
-		if (action->text() == welcomePage2Str[i]) break;
-	}
-    gameSet(i + 1);
-	mainWindow->setCurrentIndex(1);
-}
-
 void Sudoku_GUI::resetTimer() {
     /*
     @overview:reset the timer and timerecord for the next game
@@ -424,7 +418,6 @@ void Sudoku_GUI::initRecord() {
     timeRecordFile.close();
 }
 
-
 void Sudoku_GUI::setStyle() {
 	QFile qss(STYLE_FILE_NAME);
 	qss.open(QFile::ReadOnly);
@@ -439,6 +432,77 @@ void Sudoku_GUI::setBackgroundColorForWindow(QWidget* window, int red, int green
     window->setAutoFillBackground(true);
     window->setPalette(pal);
     window->show();
+}
+
+void Sudoku_GUI::saveDataAtIndex(int index) {
+    // Read all contents from file
+    QFile readFile(SAVEDATA_FILE_NAME);
+    QString allContents;
+    if (readFile.open(QIODevice::Text | QIODevice::ReadOnly)) {
+        QTextStream readStream(&readFile);
+        allContents = readStream.readAll();
+        readFile.close();
+    }
+
+    //Change contents and write back to file
+    QFile writeFile(SAVEDATA_FILE_NAME);
+    if (writeFile.open(QIODevice::Text | QIODevice::WriteOnly)) {
+        QTextStream writeStream(&writeFile);
+        QStringList contentsList = allContents.split("\n");
+        int startIndex = index * (LEN + 1);
+        for (int i = 0; i < LEN; i++) {
+            QString* tempString = &(contentsList[startIndex + i]);
+            for (int j = 0, k = 0; j < contentsList[startIndex + i].length(); j++) {
+                if (tempString->at(j) == ' ') { // Ignore spaces
+                    continue;
+                } else {
+                    QString newContent = puzzleButtons[i][k++]->text();
+                    if (newContent == "") {
+                        tempString->replace(j, 1, "0");
+                    } else {
+                        tempString->replace(j, 1, newContent);
+                    }
+                }
+            }
+        }
+
+        // Write back to file
+        for (int i = 0; i < contentsList.size(); i++) {
+            writeStream << contentsList[i] << "\n";
+        }
+
+        writeFile.close();
+    }
+}
+
+void Sudoku_GUI::loadDataAtIndex(int index) {
+    QFile dataFile(SAVEDATA_FILE_NAME);
+    if (dataFile.open(QIODevice::ReadOnly)) {
+        QTextStream fileStream(&dataFile);
+        
+        // Skip all uneccessary lines
+        for (int i = 0; i < index; i++) {
+            for (int j = 0; j < LEN + 1; j++) { // Skip a sudoku + one extra line
+                fileStream.readLine();
+            }
+        }
+
+        // Load a sudoku
+        for (int i = 0; i < LEN; i++) {
+            QString line = fileStream.readLine();
+            line.remove(" ");
+
+            // Load one line into game board
+            for (int j = 0; j < LEN; j++) {
+                if (line[j] == '0') {
+                    puzzleButtons[i][j]->setText(QString(""));
+                } else {
+                    puzzleButtons[i][j]->setText(QString(line[j]));
+                }
+            }
+        }
+        dataFile.close();
+    }
 }
 
 // Button methods beneath
@@ -477,10 +541,15 @@ void Sudoku_GUI::pressButtonPuzzle() {
     int x = name / LEN;
     int y = name % LEN;
     if (tableClickable[x][y]) { // Numbers in unclickable button can't be changed
-        if (currentX != -1 && currentY != -1) { // Unchecked pressed puzzle button 
+        if (currentX != -1 && currentY != -1) { // Uncheck already checked button
             puzzleButtons[currentX][currentY]->setChecked(false);
+        } 
+
+        if (currentX == x && currentY == y) { // Unchecked button is the pressed button
+            currentPositionSet(-1, -1);
+        } else { // Button is unchecked
+            currentPositionSet(x, y);
         }
-        currentPositionSet(x, y);
     } else {
         currentPositionSet(-1, -1);
     }
@@ -538,11 +607,54 @@ void Sudoku_GUI::pressButtonReturn() {
 
 void Sudoku_GUI::pressButtonDisplace() {
     /*
-    @overview:invoked when replace button clicked, replace number in selected
+    @overview:invoked when displace button clicked, displace number in selected
     button.
     */
     QString nullStr = QString("");
     puzzleButtons[currentX][currentY]->setText(nullStr);
     puzzleButtons[currentX][currentY]->setChecked(false);
     checkGame();
+}
+
+void Sudoku_GUI::pressMenuButtonNewGame() {
+    /*
+    @overview:triggered when the new game action clicked on the menu
+    */
+    if (begin) {
+        timer->stop();
+        if (QMessageBox::No == QMessageBox::question(this, tr("NewGame"), \
+            tr("Are you sure to discard the current game?"), \
+            QMessageBox::Yes | QMessageBox::No, \
+            QMessageBox::Yes)) {
+            timer->start(1000);
+            return;
+        }
+    }
+    QAction *action = qobject_cast<QAction*>(sender());
+    int i = 0;
+    for (; i < 3; ++i) {
+        if (action->text() == welcomePage2Str[i]) break;
+    }
+    gameSet(i + 1);
+    mainWindow->setCurrentIndex(1);
+}
+
+void Sudoku_GUI::pressMenuButtonSave() {
+    QAction* action = qobject_cast<QAction*>(sender());
+    for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
+        if (action->text() == saveChoices[i]) {
+            saveDataAtIndex(i);
+            break;
+        }
+    }
+}
+
+void Sudoku_GUI::pressMenuButtonLoad() {
+    QAction* action = qobject_cast<QAction*>(sender());
+    for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
+        if (action->text() == loadChoices[i]) {
+            loadDataAtIndex(i);
+            break;
+        }
+    }
 }

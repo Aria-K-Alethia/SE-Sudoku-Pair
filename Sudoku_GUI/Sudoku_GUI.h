@@ -38,11 +38,12 @@ private:
 	int checkGame();
 	void gameCompleted(int flag);
     void timeUpdate();
-    void newGameMenuClicked();
     void resetTimer();
     void checkTimeRecord();
     void initRecord();
     void setBackgroundColorForWindow(QWidget* window, int red, int green, int blue);
+    void saveDataAtIndex(int index);
+    void loadDataAtIndex(int index);
 
 	void pressButtonWelcome();
 	void pressButtonDifficulty();
@@ -51,4 +52,7 @@ private:
 	void pressButtonHint();
 	void pressButtonReturn();
     void pressButtonDisplace();
+    void pressMenuButtonNewGame();
+    void pressMenuButtonLoad();
+    void pressMenuButtonSave();
 };
