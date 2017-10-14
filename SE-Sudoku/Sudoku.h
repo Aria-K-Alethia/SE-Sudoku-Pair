@@ -40,8 +40,10 @@ private:
 	//below is the fast code
 	static char* out;
 	static long int out_pos;
-    static bool hasMode;
+	static bool hasMode;
+  
 public:
+	
 	Sudoku();
 	Sudoku(char **b);
 	Sudoku(Sudoku &b);

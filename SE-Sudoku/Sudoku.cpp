@@ -43,9 +43,7 @@ void Sudoku::generate(int number, int lower, int upper, bool unique, int result[
 	if (number > 10000 || number < 1) {
 		throw SudokuCountException();
 	}
-	/*if (number > sizeof(result) / (81 * sizeof(int))) {
-		throw ResultRowTooFewException();
-	}*/
+
 	if (((lower < 20 || upper > 55) && (!Sudoku::hasMode)) || lower > upper) {
 		throw LowerUpperException();
 	}
@@ -79,12 +77,13 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
     } else if (mode == UPDOWNHOLES) { //Dig holes from left to right, from up to down, unique answer restricted
 		for (int i = 0; i < count; i++) {
 			int dugCount = 0;
-			int holeCount = rand() % (upper - lower) + lower;
+			//int holeCount = rand() % (upper - lower) + lower;
+			int holeCount = lower;
 			for (int j = 0; j < LEN*LEN; j++) {
 				if (j == 0) { // The first digging can always be right
                     result[i][j] = 0;
 					dugCount++;
-					if (dugCount == holeCount) {
+					if (dugCount >= holeCount) {
 						break;
 					}
 					continue; 
@@ -106,7 +105,7 @@ void Sudoku::digHoles(int count, int mode, int lower, int upper, int result[][LE
 					result[i][j] = 0;
 					dugCount++;
 				}
-				if (dugCount == holeCount) {
+				if (dugCount >= holeCount) {
 					break;
 				}
 			}
@@ -124,9 +123,6 @@ void Sudoku::generate(int number, int mode, int result[][LEN*LEN]) throw(SudokuC
 		Sudoku::hasMode = false;
 		throw SudokuCountException();
 	}
-	/*if (number > sizeof(result) / (LEN * LEN * sizeof(int))) {
-		throw ResultRowTooFewException();
-	}*/
 	if (mode < EASYMODE || mode > HARDMODE) {
 		Sudoku::hasMode = false;
 		throw ModeRangeException();
@@ -482,8 +478,8 @@ bool Sudoku::checkGeneratePos(int i, int j, int k) {
 	row = getBlock(i);
 	col = getBlock(j);
 	for (int a = 1; a <= LEN; ++a) {
-		if (board[i][a] == k - '0' || board[a][j] == k - '0' 
-			|| board[row + a / 3][col + (a % 3)] == k - '0')
+		if ((board[i][a] == k + '0') || (board[a][j] == k + '0') 
+			|| (board[row + ((a - 1) / 3)][col + ((a - 1) % 3)] == k + '0'))
 			return false;
 	}	
 
@@ -492,15 +488,14 @@ bool Sudoku::checkGeneratePos(int i, int j, int k) {
 
 bool Sudoku::checkSolvePos(int i, int j, int k) {
 	/*@overview:check if k in (i,j) is valid when solving a sudoku
-	@param:
 	*/
 
 	int row, col;
 	row = getBlock(i);
 	col = getBlock(j);
 	for (int a = 1; a <= LEN; ++a) {
-		if (board[i][a] == k - '0' || board[a][j] == k - '0'
-			|| board[row + a / 3][col + (a % 3)] == k - '0')
+		if ((board[i][a] == k + '0') || (board[a][j] == k + '0')
+			|| (board[row + (a-1) / 3][col + ((a - 1) % 3)] == k + '0'))
 			return false;
 	}
 	return true;

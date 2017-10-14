@@ -170,7 +170,7 @@ namespace UnitTest1
 			int result[1][81];
 			bool exceptionThrown = false;
 			try { // Test first SudokuCountException
-				sudoku.generate(-1, 1, result);
+				sudoku.generate(0, 1, result);
 			}
 			catch (SudokuCountException& e) {
 				exceptionThrown = true;
@@ -180,9 +180,8 @@ namespace UnitTest1
 
 			//test ModeRangeException
 			exceptionThrown = false;
-
 			try {
-				sudoku.generate(1, -1, result);
+				sudoku.generate(1, 0, result);
 			}
 			catch (ModeRangeException& e) {
 				exceptionThrown = true;
@@ -332,10 +331,10 @@ namespace UnitTest1
 				@overview:test inputhandler.analyze(),and its getter
 			*/
 			InputHandler* input;
-			strcpy_s(argv[1], length, "-n");
-			strcpy_s(argv[2], length, "1000");
-			strcpy_s(argv[3], length, "-m");
-			strcpy_s(argv[4], length, "2");
+			strcpy_s(argv[3], length, "-n");
+			strcpy_s(argv[4], length, "1000");
+			strcpy_s(argv[1], length, "-m");
+			strcpy_s(argv[2], length, "2");
 			argc = 5;
 			input = new InputHandler(argc, argv);
 			input->analyze();
