@@ -16,7 +16,9 @@
 #include "time.h"
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <memory>
+#include <QCloseEvent>
 #pragma comment(lib,"./SoduCore.lib")
 
 #define WINDOW_WIDTH 720
@@ -24,11 +26,10 @@
 #define WIN_GAME 1
 #define LOSE_GAME 0
 #define NOT_COMPLETE -1
-#define LEN 9
 #define SAVEDATA_FILE_NAME "./savedata.txt"
 #define SAVE_CHOICE_COUNT 3
 
-static QString welcomePage1Str[2] = { "NewGame","Help" };
+static QString welcomePage1Str[3] = { "New Game","Continue", "Help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
 static QString saveChoices[SAVE_CHOICE_COUNT] = { "Record 1", "Record 2", "Record 3" };
 static QString loadChoices[SAVE_CHOICE_COUNT] = { "Record 1", "Record 2", "Record 3" };
@@ -112,14 +113,13 @@ Sudoku_GUI::Sudoku_GUI(QWidget *parent)
 
 	//welcome window page 1
     QVBoxLayout* welcomePage1Layout = new QVBoxLayout(welcomeWidgetPage1);
-	welcomePage1Layout->addStretch(1);
 	QLabel* welcomeLabel = new QLabel(tr("Sudoku Game"));
     welcomeLabel->setObjectName("subtitleLabel");
 	welcomeLabel->setAlignment(Qt::AlignHCenter);
 	welcomePage1Layout->addWidget(welcomeLabel);
 	welcomePage1Layout->addStretch(2);
-	welcomePage1Layout->setMargin(200);
-	for (int i = 0; i < 2; ++i) {
+	welcomePage1Layout->setMargin(180);
+	for (int i = 0; i < 3; ++i) {
 		QPushButton *button = new QPushButton(welcomePage1Str[i]);
 		welcomePage1Layout->addWidget(button);
 		connect(button, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonWelcome);
@@ -277,14 +277,14 @@ well-posed puzzle has a single solution.\nBelow is a complete and valid sudoku";
 		loadMenu->addAction(loadMenuAction);
 		connect(loadMenuAction, &QAction::triggered, this, &Sudoku_GUI::pressMenuButtonLoad);
 	}
+    ui.menuBar->addMenu(saveMenu);
+    ui.menuBar->addMenu(loadMenu);
 
 	this->setMinimumSize(QSize(WINDOW_WIDTH, WINDOW_HEIGHT));
 	this->setMaximumSize(QSize(WINDOW_WIDTH, WINDOW_HEIGHT));
 
 	//welcomeWindow->setCurrentIndex(1); // Debugging code
 }
-
-
 
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
 	/*
@@ -321,6 +321,38 @@ void Sudoku_GUI::gameSet(int degOfDifficulty) {
 	}
 	delete[] result;
     //start timer
+    timer->start(1000);
+}
+
+void Sudoku_GUI::gameSet(QTime* time, int puzzle[LEN * LEN], bool clickableRecord[LEN * LEN]) {
+    /*
+    @overview:invoked when player choose to continue last game,init the game.
+    */
+    begin = true;
+    QString temp;
+    QString vac("");
+    for (int i = 0; i < LEN; ++i) {
+        for (int j = 0; j < LEN; ++j) {
+            tableClickable[i][j] = clickableRecord[i * LEN + j];
+            if (puzzle[i * LEN + j] == 0) {
+                puzzleButtons[i][j]->setText(vac);
+            } else {
+                puzzleButtons[i][j]->setText(temp.setNum(puzzle[i * LEN + j]));
+            }
+            if (tableClickable[i][j]) { // Able to be pressed & checked
+                puzzleButtons[i][j]->setEnabled(true);
+                puzzleButtons[i][j]->setCheckable(true); 
+            } else {
+                puzzleButtons[i][j]->setEnabled(false);
+                puzzleButtons[i][j]->setCheckable(false);
+            }
+        }
+    }
+    checkWrongAndShow();
+
+    // Reset time & start timer
+    timeRecord = time;
+    timeLabel->setText(timeRecord->toString("hh:mm:ss"));
     timer->start(1000);
 }
 
@@ -382,6 +414,10 @@ void Sudoku_GUI::gameCompleted(int flag) {
             mainWindow->setCurrentIndex(0);
         }
 	}
+
+    // Hide save & load menus
+    saveMenu->menuAction()->setVisible(false);
+    loadMenu->menuAction()->setVisible(false);
 }
 
 void Sudoku_GUI::timeUpdate() {
@@ -493,8 +529,6 @@ void Sudoku_GUI::initRecord() {
     }
     timeRecordFile.close();
 }
-
-
 
 void Sudoku_GUI::setBackgroundColorForWindow(QWidget* window, int red, int green, int blue) {
 	/*
@@ -653,14 +687,117 @@ void Sudoku_GUI::loadDataAtIndex(int index) {
 	}
 }
 
+void Sudoku_GUI::initSaveData() {
+    std::fstream file;
+    file.open("savedata.txt", std::ios::out);
+    int sudokuCount = 3;
+    int sudokuLength = 9;
+    for (int i = 0; i < sudokuCount; i++) {
+        for (int j = 0; j < sudokuLength; j++) {
+            for (int k = 0; k < sudokuLength - 1; k++) {
+                file << "0 ";
+            }
+            file << "0\n";
+        }
+        file << "\n";
+    }
+
+    file.close();
+}
+
+void Sudoku_GUI::closeEvent(QCloseEvent * event) {
+    if (begin) {
+        saveCurrentGame();
+    }
+}
+
+void Sudoku_GUI::saveCurrentGame() {
+    // @overview: save current game to file
+    std::fstream file;
+    file.open("lastgame.txt", std::ios::out);
+    file << timeRecord->toString().toStdString() << "\n"; // Add time record
+    
+    // Add puzzle record
+    for (int i = 0; i < LEN; i++) {
+        for (int j = 0; j < LEN; j++) {
+            if (puzzleButtons[i][j]->text() == "") {
+                file << "0";
+            } else {
+                file << puzzleButtons[i][j]->text().toStdString();
+            }
+        }
+    }
+    file << "\n";
+
+    // Add clickable record
+    for (int i = 0; i < LEN; i++) {
+        for (int j = 0; j < LEN; j++) {
+            file << tableClickable[i][j];
+        }
+    }
+    file << "\n";
+    file.close();
+}
+
+bool Sudoku_GUI::loadAndSetGame() {
+    // @overview: get data from file
+    QFile file("lastgame.txt");
+    file.open(QIODevice::Text | QIODevice::ReadOnly);
+    int puzzle[LEN * LEN];
+    bool clickables[LEN * LEN];
+    QTime* time = new QTime();
+    QTextStream fileStream(&file);
+    // Load game info from file
+    if (!file.exists()) {
+        QMessageBox::about(NULL, "Hey there", "No game has been started yet.");
+        file.close();
+        return false;
+    } else {
+        QString allContents = fileStream.readAll();
+        QStringList contentList = allContents.split("\n");
+
+        // Set time
+        QStringList timeList = contentList[0].split(":");
+        int hour = timeList[0].toInt();
+        int minute = timeList[1].toInt();
+        int second = timeList[2].toInt();
+        time->setHMS(hour, minute, second);
+
+        // Set puzzle
+        std::string puzzleList = contentList[1].toStdString();
+        for (int i = 0; i < LEN * LEN; i++) {
+            puzzle[i] = puzzleList[i] - '0';
+        }
+
+        // Set clickables
+        std::string clickableList = contentList[2].toStdString();
+        for (int i = 0; i < LEN * LEN; i++) {
+            clickables[i] = clickableList[i] - '0';
+        }
+    }
+    file.close();
+    
+    // Set game
+    gameSet(time, puzzle, clickables);
+
+    return true;
+}
 // Button methods beneath
 void Sudoku_GUI::pressButtonWelcome() {
     //overview: Choose to enter game or view help
     QPushButton* button = qobject_cast<QPushButton*>(sender());
-    if (button->text() == welcomePage1Str[0]) {
+    if (button->text() == "New Game") {
         welcomeWindow->setCurrentIndex(1);
-    } else if (button->text() == welcomePage1Str[1]) {
+    } else if (button->text() == "Help") {
         welcomeWindow->setCurrentIndex(2);
+    } else if (button->text() == "Continue") {
+        if (loadAndSetGame()) {
+            begin = true;
+            initSaveData();
+            mainWindow->setCurrentIndex(1);
+            ui.menuBar->addMenu(saveMenu);
+            ui.menuBar->addMenu(loadMenu);
+        }
     }
 }
 
@@ -673,9 +810,8 @@ void Sudoku_GUI::pressButtonDifficulty() {
             break;
         }
     }
+    initSaveData();
     mainWindow->setCurrentIndex(1);
-    ui.menuBar->addMenu(saveMenu);
-    ui.menuBar->addMenu(loadMenu);
     //Generate sudoku puzzle with different difficulty
     gameSet(i + 1);
 }
@@ -767,6 +903,9 @@ void Sudoku_GUI::pressButtonDisplace() {
     button.
     */
     QString nullStr = QString("");
+    if (currentX == -1 && currentY == -1) {
+        return;
+    }
     puzzleButtons[currentX][currentY]->setText(nullStr);
     puzzleButtons[currentX][currentY]->setChecked(false);
 	currentPositionSet(-1, -1);
@@ -777,6 +916,10 @@ void Sudoku_GUI::pressMenuButtonSave() {
 	/*
 		@overview:invoked when save button clicked on the menu,save the current game.
 	*/
+    if (!begin) {
+        QMessageBox::about(NULL, "Oops", "Quick save can only be used when playing.");
+        return;
+    }
 	QAction* action = qobject_cast<QAction*>(sender());
 	for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
 		if (action->text() == saveChoices[i]) {
@@ -792,6 +935,10 @@ void Sudoku_GUI::pressMenuButtonLoad() {
 		@overview:invoked when load button clicked on the menu, load the game in corresponding
 		index.
 	*/
+    if (!begin) {
+        QMessageBox::about(NULL, "Oops", "Quick load can only be used when playing.");
+        return;
+    }
 	QAction* action = qobject_cast<QAction*>(sender());
 	for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
 		if (action->text() == loadChoices[i]) {

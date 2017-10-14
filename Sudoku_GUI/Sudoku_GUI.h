@@ -4,7 +4,7 @@
 #include "ui_Sudoku_GUI.h"
 
 #define STYLE_FILE_NAME "Resources\\stylesheet.qss"
-
+#define LEN 9
 
 class QStackedWidget;
 class QWidget;
@@ -35,6 +35,7 @@ private:
     bool begin;
 
 	void gameSet(int degOfDiffculty);
+    void gameSet(QTime* time, int puzzle[LEN * LEN], bool clickableRecord[LEN * LEN]);
 	void currentPositionSet(int x, int y);
 	int checkGame();
 	void gameCompleted(int flag);
@@ -49,6 +50,10 @@ private:
 	void setRightColor(int i, int j);
 	void saveDataAtIndex(int index);
 	void loadDataAtIndex(int index);
+    void initSaveData();
+    void closeEvent(QCloseEvent *event);
+    void saveCurrentGame();
+    bool loadAndSetGame();
 
 	void pressButtonWelcome();
 	void pressButtonDifficulty();
