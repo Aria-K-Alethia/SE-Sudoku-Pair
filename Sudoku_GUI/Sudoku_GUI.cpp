@@ -593,8 +593,8 @@ void Sudoku_GUI::checkWrongAndShow() {
 					}
 					else if(k != i && !ifSet[k][j])setRightColor(k, j);
 					//check 3x3 block
-					int posK = ((i / 3) * 27 + (i % 3) * 3 + (k / 3) * 9 + (k % 3));
-					int posC = ((i / 3) * 27 + (i % 3) * 3 + (j / 3) * 9 + (j % 3));
+					int posK = i / 3 * 27 + j / 3 * 3 + k / 3 * 9 + k % 3;
+					int posC = i*LEN + j;
 					if (posK != posC && board[posK] == board[posC]) {
 						setWrongColor(posK / LEN, posK % LEN);
 						ifSet[posK / LEN][posK % LEN] = true;
