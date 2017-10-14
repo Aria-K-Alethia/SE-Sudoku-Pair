@@ -55,7 +55,7 @@ void InputHandler::analyze() {
 				regex p("^\\d{2}~\\d{2}$");
 				smatch m;
 				if (regex_match(param[i + 1], m, p)) {
-					int pos = param[i + 1].find("~");
+					int pos = (int)param[i + 1].find("~");
 					string num1 = param[i + 1].substr(0, pos);
 					string num2 = param[i + 1].substr(pos + 1);
 					stringstream ss;

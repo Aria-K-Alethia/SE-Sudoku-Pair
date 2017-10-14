@@ -474,29 +474,18 @@ inline bool Sudoku::traceBackSolve(int i, int j) {
 }
 
 bool Sudoku::checkGeneratePos(int i, int j, int k) {
-	/*@overview:check if the board is valid when board[i][j] = k,this method omit 0 in the board
-	@param:
+	/*
+		@overview:check if the board is valid when board[i][j] = k,this method omit 0 in the board
 	*/
 
-	//check row
-	for (int a = 1; a < j; ++a) {
-		if (board[i][a] == k + '0') return false;
-	}
-	//check col
-	for (int a = 1; a < i; ++a) {
-		if (board[a][j] == k + '0') return false;
-	}
-	//check 3x3 block
 	int row, col;
 	row = getBlock(i);
 	col = getBlock(j);
-
-	for (int a = row; a <= i; ++a) {
-		for (int b = col; b <= col + 2; ++b) {
-			if (a == i && b == j) continue;
-			if (board[a][b] == k + '0') return false;
-		}
-	}
+	for (int a = 1; a <= LEN; ++a) {
+		if (board[i][a] == k - '0' || board[a][j] == k - '0' 
+			|| board[row + a / 3][col + (a % 3)] == k - '0')
+			return false;
+	}	
 
 	return true;
 }
@@ -506,25 +495,14 @@ bool Sudoku::checkSolvePos(int i, int j, int k) {
 	@param:
 	*/
 
-	//check row
-	for (int a = 1; a <= LEN; ++a) {
-		if (board[i][a] == k + '0') return false;
-	}
-	//check col
-	for (int a = 1; a <= LEN; ++a) {
-		if (board[a][j] == k + '0') return false;
-	}
-	//check 3x3 block
 	int row, col;
 	row = getBlock(i);
 	col = getBlock(j);
-
-	for (int a = row; a <= row + 2; ++a) {
-		for (int b = col; b <= col + 2; ++b) {
-			if (board[a][b] == k + '0') return false;
-		}
+	for (int a = 1; a <= LEN; ++a) {
+		if (board[i][a] == k - '0' || board[a][j] == k - '0'
+			|| board[row + a / 3][col + (a % 3)] == k - '0')
+			return false;
 	}
-
 	return true;
 }
 
