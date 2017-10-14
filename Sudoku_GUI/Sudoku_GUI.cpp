@@ -13,6 +13,7 @@
 #include "QPixmap"
 #include "QTextstream"
 #include "SoduCore.h"
+#include "time.h"
 #include <iostream>
 #include <fstream>
 #include <memory>
@@ -29,13 +30,16 @@
 
 static QString welcomePage1Str[2] = { "NewGame","Help" };
 static QString welcomePage2Str[3] = { "Easy","Medium","Hard" };
-static QString saveChoices[SAVE_CHOICE_COUNT] = { "Save record 1", "Save record 2", "Save record 3" };
-static QString loadChoices[SAVE_CHOICE_COUNT] = { "Load record 1", "Load record 2", "Load record 3" };
+static QString saveChoices[SAVE_CHOICE_COUNT] = { "Record 1", "Record 2", "Record 3" };
+static QString loadChoices[SAVE_CHOICE_COUNT] = { "Record 1", "Record 2", "Record 3" };
+static QMenu* loadMenu;
+static QMenu* saveMenu;
 char* timeRecordFileName = "timerecord.txt";
 static int currentX = -1;
 static int currentY = -1;
 static bool tableClickable[LEN][LEN] = { 0 };
 static int level;
+static bool saved[SAVE_CHOICE_COUNT] = { 0 };
 
 //below are some necessary function when we change Core
 
@@ -168,7 +172,9 @@ well-posed puzzle has a single solution.\nBelow is a complete and valid sudoku";
 	QGridLayout* puzzleLayout = new QGridLayout(gameWindow);
 	QHBoxLayout* hintAndTimerLayout = new QHBoxLayout(gameWindow);
 	QHBoxLayout* choicesLayout = new QHBoxLayout(gameWindow);
-    
+    saveMenu = new QMenu("Quick Save");
+    loadMenu = new QMenu("Quick Load");
+
     // Set spacers for puzzle layout
         // Vertical spacers
     puzzleLayout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding), 0, 0, 1, LEN + 2);
@@ -266,9 +272,9 @@ well-posed puzzle has a single solution.\nBelow is a complete and valid sudoku";
 	for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
 		QAction *saveMenuAction = new QAction(saveChoices[i]);
 		QAction *loadMenuAction = new QAction(loadChoices[i]);
-		ui.menuSave->addAction(saveMenuAction);
+		saveMenu->addAction(saveMenuAction);
 		connect(saveMenuAction, &QAction::triggered, this, &Sudoku_GUI::pressMenuButtonSave);
-		ui.menuLoad->addAction(loadMenuAction);
+		loadMenu->addAction(loadMenuAction);
 		connect(loadMenuAction, &QAction::triggered, this, &Sudoku_GUI::pressMenuButtonLoad);
 	}
 
@@ -581,7 +587,7 @@ void Sudoku_GUI::saveDataAtIndex(int index) {
 		QTextStream readStream(&readFile);
 		allContents = readStream.readAll();
 		readFile.close();
-	}
+    }
 
 	//Change contents and write back to file
 	QFile writeFile(SAVEDATA_FILE_NAME);
@@ -668,6 +674,8 @@ void Sudoku_GUI::pressButtonDifficulty() {
         }
     }
     mainWindow->setCurrentIndex(1);
+    ui.menuBar->addMenu(saveMenu);
+    ui.menuBar->addMenu(loadMenu);
     //Generate sudoku puzzle with different difficulty
     gameSet(i + 1);
 }
@@ -773,6 +781,7 @@ void Sudoku_GUI::pressMenuButtonSave() {
 	for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
 		if (action->text() == saveChoices[i]) {
 			saveDataAtIndex(i);
+            saved[i] = true;
 			break;
 		}
 	}
@@ -786,7 +795,11 @@ void Sudoku_GUI::pressMenuButtonLoad() {
 	QAction* action = qobject_cast<QAction*>(sender());
 	for (int i = 0; i < SAVE_CHOICE_COUNT; i++) {
 		if (action->text() == loadChoices[i]) {
-			loadDataAtIndex(i);
+            if (saved[i]) { // The selected record does exist
+                loadDataAtIndex(i);
+            } else { // The selected record doesn't exist
+                QMessageBox::about(NULL, "Oops", "Record hasn't been created");
+            }
 			break;
 		}
 	}
