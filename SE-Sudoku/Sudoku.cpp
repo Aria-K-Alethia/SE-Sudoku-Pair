@@ -14,7 +14,7 @@ Sudoku::Sudoku() {
 	//@overview:init a board with 0 and START in board[1][1]
 	init();
 }
-
+/*
 Sudoku::Sudoku(char **b) {
 	//@overview:init a board in terms of b
 	assert(b != NULL);
@@ -32,6 +32,7 @@ Sudoku::Sudoku(Sudoku &b) {
 		}
 	}
 }
+*/
 //main method,including generate and solve method.
 
 void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) throw(SudokuCountException, 
@@ -208,21 +209,12 @@ bool Sudoku::solve(int puzzle[], int solution[]) throw(IllegalLengthException) {
 	@overview:solve sudoku in puzzle.save the outcome to solution
 	*/
 	bool ret;
-	/*if ((sizeof(puzzle)/sizeof(int) - LEN*LEN != 0)|| (sizeof(solution)/sizeof(int) - LEN*LEN != 0)) {
-		throw IllegalLengthException();
-	}
-	*/
-
 	convertToTwoDimension(puzzle);
-	
 	ret = traceBackSolve(1, 1);
-
     if (!check()) { // The sudoku is illegal
         return false;
     }
-
 	convertToOneDimension(solution);
-
 	return ret;
 }
 
@@ -277,7 +269,7 @@ void Sudoku::solve_and_output(InputHandler input, char* filename)
 }
 */
 //some useful method
-
+/*
 void Sudoku::set(char b[][LEN + 1])
 {
 	//@overview:copy a board from b
@@ -288,7 +280,7 @@ void Sudoku::set(char b[][LEN + 1])
 		}
 	}
 }
-
+*/
 
 char* Sudoku::toString()
 {

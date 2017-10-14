@@ -30,7 +30,7 @@ void Output::error(int code) {
 	else if (code == 15) cout << "Error code 15:parameter in -r lower~upper must satisfy lower<=upper" << endl;
     else if (code == 18) cout << "Error code 18:parameter -n can't be used without other parameters" << endl;
 	cout << "Enter \"sudoku.exe -h\" to get help information" << endl;
-	exit(-1);
+	//exit(-1);
 }
 
 void Output::help()

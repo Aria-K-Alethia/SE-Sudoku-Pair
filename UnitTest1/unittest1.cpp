@@ -60,10 +60,24 @@ namespace UnitTest1
 			int temp[81];
 			bool ret;
 			ret = sudoku.solve(puzzle, temp);
+			OutputHandler output(&sudoku);
+			InputHandler input(0,nullptr);
+			fstream testFile("test.txt", ios::out);
+			output.outputSudoku(testFile);
+			testFile.close();
 			Assert::AreEqual(ret, true);
 			for (int i = 0; i < 81; ++i) {
 				Assert::AreEqual(temp[i], solution[i]);
 			}
+			int board[LEN*LEN];
+			
+			testFile.open("test.txt", ios::in);
+			Assert::IsTrue(input.getBoard(testFile, board));
+			//should be equal
+			for (int i = 0; i < 81; ++i) {
+				Assert::AreEqual(board[i], solution[i]);
+			}
+			
 		}
 		TEST_METHOD(TestGenerate1) {
 			/*
@@ -87,6 +101,21 @@ namespace UnitTest1
 				Assert::AreEqual(count <= upper && count >= lower, true);
 			}
 
+			OutputHandler output(&sudoku);
+			output.outputSudoku(10, result, "test.txt");
+			InputHandler input(0, nullptr);
+			fstream testFile("test.txt", ios::in);
+			int board[LEN*LEN];
+			//should have 10 sudoku and equal to the same sudoku in result
+			int count = 0;
+			while (input.getBoard(testFile, board)) {
+				
+				for (int i = 0; i < LEN*LEN; ++i) {
+					Assert::AreEqual(board[i],result[count][i]);
+				}
+				count++;
+			}
+			Assert::AreEqual(count, 10);
 		}
 		TEST_METHOD(TestGenerate1_2) {
 			//generate medium sudoku
@@ -145,6 +174,7 @@ namespace UnitTest1
 			}
 			catch (SudokuCountException& e) {
 				exceptionThrown = true;
+				e.what();
 			}
 			Assert::IsTrue(exceptionThrown);
 
@@ -156,6 +186,7 @@ namespace UnitTest1
 			}
 			catch (ModeRangeException& e) {
 				exceptionThrown = true;
+				e.what();
 			}
 			Assert::IsTrue(exceptionThrown);
 
@@ -187,6 +218,7 @@ namespace UnitTest1
 			}
 			catch (SudokuCountException& e) {
 				exceptionThrown = true;
+				e.what();
 			}
 			Assert::IsTrue(exceptionThrown);
 
@@ -197,6 +229,7 @@ namespace UnitTest1
 			}
 			catch (LowerUpperException& e) {
 				exceptionThrown = true;
+				e.what();
 			}
 			Assert::IsTrue(exceptionThrown);
 			//test LowerUpperException,case 2
@@ -206,6 +239,7 @@ namespace UnitTest1
 			}
 			catch (LowerUpperException& e) {
 				exceptionThrown = true;
+				e.what();
 			}
 			Assert::IsTrue(exceptionThrown);
 			//test LowerUpperException,case 3
@@ -215,6 +249,7 @@ namespace UnitTest1
 			}
 			catch (LowerUpperException& e) {
 				exceptionThrown = true;
+				e.what();
 			}
 			Assert::IsTrue(exceptionThrown);
 
@@ -292,6 +327,23 @@ namespace UnitTest1
 
 			delete input;
 		}
+		TEST_METHOD(TestInputHandlerAnalyze4) {
+			/*
+				@overview:test inputhandler.analyze(),and its getter
+			*/
+			InputHandler* input;
+			strcpy_s(argv[1], length, "-n");
+			strcpy_s(argv[2], length, "1000");
+			strcpy_s(argv[3], length, "-m");
+			strcpy_s(argv[4], length, "2");
+			argc = 5;
+			input = new InputHandler(argc, argv);
+			input->analyze();
+			Assert::AreEqual(input->getMode(), 'n');
+			Assert::AreEqual(input->getNumber(), 1000);
+			Assert::AreEqual(input->getHardness(), 2);
+			delete input;
+		}
 		TEST_METHOD(TestGenerateCompleteNAndOutput) {
 			/*
 				@overview:test method sudoku.generateCompleteNAndOutput
@@ -312,6 +364,8 @@ namespace UnitTest1
 			Assert::AreEqual(count, 1000);
 			f.close();
 		}
+
+
 		TEST_METHOD(Testconvert) {
 			/*
 				@overview:test sudoku.convertToOneDimension()
