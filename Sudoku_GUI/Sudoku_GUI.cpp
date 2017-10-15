@@ -314,7 +314,7 @@ void Sudoku_GUI::gameSet(int degOfDifficulty) {
 			}
 		}
 	}
-	checkWrongAndShow();
+	checkWrongAndShow(0);
 	//delete result
 	for (int i = 0; i < 10; ++i) {
 		delete[] result[i];
@@ -348,7 +348,7 @@ void Sudoku_GUI::gameSet(QTime* time, int puzzle[LEN * LEN], bool clickableRecor
             }
         }
     }
-    checkWrongAndShow();
+    checkWrongAndShow(0);
 
     // Reset time & start timer
     timeRecord = time;
@@ -560,7 +560,7 @@ void Sudoku_GUI::setRightColor(int i, int j) {
 	
 }
 
-void Sudoku_GUI::checkWrongAndShow() {
+void Sudoku_GUI::checkWrongAndShow(int mode) {
 	/*
 		@overview:check wrong in the current board and show them with special color
 	*/
@@ -575,7 +575,9 @@ void Sudoku_GUI::checkWrongAndShow() {
 	}
 	for (int i = 0; i < LEN; ++i) {
 		for (int j = 0; j < LEN; ++j) {
-			if (board[i*LEN + j] != 0 && tableClickable[i][j]) {
+			if(( mode == 0 && board[i*LEN + j] != 0 && tableClickable[i][j])
+				||
+				(mode == 1 && board[i*LEN + j] != 0)) {
 				flag = false;
 				for (int k = 0; k < LEN; ++k) {
 					//check row
@@ -685,6 +687,7 @@ void Sudoku_GUI::loadDataAtIndex(int index) {
 		}
 		dataFile.close();
 	}
+	checkWrongAndShow(1);
 }
 
 void Sudoku_GUI::initSaveData() {
@@ -847,7 +850,7 @@ void Sudoku_GUI::pressButtonChoice() {
         QPushButton *button = qobject_cast<QPushButton*>(sender());
         int name = button->text().toInt();
         puzzleButtons[currentX][currentY]->setText(QString::number(name));
-		checkWrongAndShow();
+		checkWrongAndShow(0);
         checkGame();
         puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
         currentPositionSet(-1, -1);
@@ -882,7 +885,7 @@ void Sudoku_GUI::pressButtonHint() {
 	}
     if (solve_s(board, solution)) {
         puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN + currentY]));
-		checkWrongAndShow();
+		checkWrongAndShow(0);
 		delete[] board;
 		delete[] solution;
         puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
@@ -909,7 +912,7 @@ void Sudoku_GUI::pressButtonDisplace() {
     puzzleButtons[currentX][currentY]->setText(nullStr);
     puzzleButtons[currentX][currentY]->setChecked(false);
 	currentPositionSet(-1, -1);
-    //checkGame();
+	checkWrongAndShow(1);
 }
 
 void Sudoku_GUI::pressMenuButtonSave() {
