@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Sudoku.h"
+#include "iostream"
 
 using namespace std;
 long int Sudoku::count = 0;
@@ -14,25 +15,6 @@ Sudoku::Sudoku() {
 	//@overview:init a board with 0 and START in board[1][1]
 	init();
 }
-/*
-Sudoku::Sudoku(char **b) {
-	//@overview:init a board in terms of b
-	assert(b != NULL);
-	for (int i = 1; i <= LEN; ++i) {
-		for (int j = 1; j <= LEN; ++j) {
-			board[i][j] = b[i][j];
-		}
-	}
-}
-Sudoku::Sudoku(Sudoku &b) {
-	//@overview:copy constructor
-	for (int i = 1; i <= LEN; ++i) {
-		for (int j = 1; j <= LEN; ++j) {
-			board[i][j] = b.board[i][j];
-		}
-	}
-}
-*/
 //main method,including generate and solve method.
 
 void Sudoku::generate(int number, int lower, int upper, bool unique, int result[][LEN*LEN]) throw(SudokuCountException, 
@@ -230,54 +212,6 @@ void Sudoku::convertToOneDimension(int solution[]) {
 	}
 }
 
-/*
-void Sudoku::solve_and_output(InputHandler input, char* filename)
-{
-	
-	fstream infile(input.getFileName(), ios::in);
-	if (!infile.is_open()) Output::error(4);
-	char board[LEN + 1][LEN + 1];
-	while (input.getBoard(infile, board)) {
-		set(board);
-		if (solve()) {
-			
-			char* outcome = toString();
-			file << outcome;
-			delete outcome;
-			
-			//below is fast code
-			toString();
-			//fast code end
-		}
-		else {
-			infile.close();
-			Output::error(6);
-		}
-	}
-	//below is fast code
-	Sudoku::out[Sudoku::out_pos] = '\0';
-	fstream file(filename, ios::out | ios::app);
-	file << Sudoku::out;
-	delete[] Sudoku::out;
-	//fast code end
-	infile.close();
-	file.close();
-}
-*/
-//some useful method
-/*
-void Sudoku::set(char b[][LEN + 1])
-{
-	//@overview:copy a board from b
-	assert(b != NULL);
-	for (int i = 1; i <= LEN; ++i) {
-		for (int j = 1; j <= LEN; ++j) {
-			board[i][j] = b[i][j];
-		}
-	}
-}
-*/
-
 char* Sudoku::toString()
 {
 //@overview:turn the board into a standard string.
@@ -295,22 +229,6 @@ char* Sudoku::toString()
 	return outcome;
 }
 
-/*
-//below is fast code
-inline char* Sudoku::toString()
-{
-	for (int i = 1; i <= LEN; ++i) {
-		for (int j = 1; j <= LEN; ++j) {
-			Sudoku::out[Sudoku::out_pos++] = board[i][j];
-			if (j != LEN) Sudoku::out[Sudoku::out_pos++] = ' ';
-		}
-		Sudoku::out[Sudoku::out_pos++] = '\n';
-	}
-	Sudoku::out[Sudoku::out_pos++] = '\n';
-	return NULL;
-}
-//fast code end
-*/
 bool Sudoku::check()
 {
 	//@overview:check if the whole sudoku is valid
@@ -504,18 +422,20 @@ bool Sudoku::checkSolvePos(int i, int j, int k) {
 char Sudoku::getElem(int i, int j) {
 	return board[i][j];
 }
-
+/*
 const char * IllegalLengthException::what() const throw() {
     return "IllegalLengthException: The length of puzzle or solution in solve(puzzle,solution) must be 81";
 }
+const char * ResultRowTooFewException::what() const throw() {
+	return "ResultRowTooFewException: The row of result array must be greater than number";
+}
+*/
 
 const char * SudokuCountException::what() const throw() {
     return "SudokuCountException: Number in generate(int number,int lower,int upper,bool unique,int result[][]) must in[1,10000]";
 }
 
-const char * ResultRowTooFewException::what() const throw() {
-    return "ResultRowTooFewException: The row of result array must be greater than number";
-}
+
 
 const char * LowerUpperException::what() const throw() {
     return "LowerUpperException: The lower and upper in generate(int number,int lower,int upper,bool unique,int result[][]) must satisfy:lower<upper,lower > 20,upper < 55";
