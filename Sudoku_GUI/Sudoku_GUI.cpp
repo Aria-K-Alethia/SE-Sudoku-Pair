@@ -16,10 +16,14 @@
 #include "time.h"
 #include <iostream>
 #include <fstream>
+<<<<<<< HEAD
 #include <string>
 #include <memory>
 #include <QCloseEvent>
 #pragma comment(lib,"./SoduCore.lib")
+=======
+#pragma comment(lib,"Core.lib")
+>>>>>>> 89f88a7583c2103340310ad57e33d92786824cae
 
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 960
