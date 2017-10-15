@@ -14,7 +14,7 @@
 #include "QTextStream"
 #include <iostream>
 #include <fstream>
-#pragma comment(lib,"SudokuDll.lib")
+#pragma comment(lib,"Core.lib")
 
 #define WINDOW_WIDTH 720
 #define WINDOW_HEIGHT 960
@@ -233,7 +233,7 @@ well-posed puzzle has a single solution.";
 	this->setMinimumSize(QSize(WINDOW_WIDTH, WINDOW_HEIGHT));
 	this->setMaximumSize(QSize(WINDOW_WIDTH, WINDOW_HEIGHT));
 
-	welcomeWindow->setCurrentIndex(1); // Debugging code
+	//welcomeWindow->setCurrentIndex(1); // Debugging code
 }
 
 void Sudoku_GUI::gameSet(int degOfDifficulty) {
