@@ -235,7 +235,7 @@ well-posed puzzle has a single solution.\nBelow is a complete and valid sudoku";
     connect(timer, &QTimer::timeout, this, &Sudoku_GUI::timeUpdate);
 
         //Displace
-    QPushButton *displaceButton = new QPushButton("Replace");
+    QPushButton *displaceButton = new QPushButton("Displace");
     displaceButton->setObjectName("displaceButton");
     hintAndTimerLayout->addWidget(displaceButton, 1, Qt::AlignHCenter);
     connect(displaceButton, &QPushButton::clicked, this, &Sudoku_GUI::pressButtonDisplace);
@@ -830,11 +830,13 @@ void Sudoku_GUI::pressButtonPuzzle() {
     int x = name / LEN;
     int y = name % LEN;
     if (tableClickable[x][y]) { // Numbers in unclickable button can't be changed
-        if (currentX != -1 && currentY != -1) { // Unchecked pressed puzzle button 
-            puzzleButtons[currentX][currentY]->setChecked(false);
-        }
-        currentPositionSet(x, y);
+        if (currentX != -1 && currentY != -1) { // Unchecked pressed puzzle button
+                puzzleButtons[currentX][currentY]->setChecked(false);
+            }
+            puzzleButtons[x][y]->setChecked(true); // Check new pressed puzzle button
+            currentPositionSet(x, y);
     } else {
+        puzzleButtons[currentX][currentY]->setChecked(false);
         currentPositionSet(-1, -1);
     }
 	
@@ -850,10 +852,8 @@ void Sudoku_GUI::pressButtonChoice() {
         QPushButton *button = qobject_cast<QPushButton*>(sender());
         int name = button->text().toInt();
         puzzleButtons[currentX][currentY]->setText(QString::number(name));
-		checkWrongAndShow(0);
+        checkWrongAndShow(0);
         checkGame();
-        puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
-        currentPositionSet(-1, -1);
     }
 }
 
@@ -885,10 +885,9 @@ void Sudoku_GUI::pressButtonHint() {
 	}
     if (solve_s(board, solution)) {
         puzzleButtons[currentX][currentY]->setText(QString::number(solution[currentX*LEN + currentY]));
-		checkWrongAndShow(0);
-		delete[] board;
-		delete[] solution;
-        puzzleButtons[currentX][currentY]->setChecked(false); // Set button unchecked
+        checkWrongAndShow(0);
+        delete[] board;
+        delete[] solution;
         checkGame();
 	}
 }
@@ -910,9 +909,7 @@ void Sudoku_GUI::pressButtonDisplace() {
         return;
     }
     puzzleButtons[currentX][currentY]->setText(nullStr);
-    puzzleButtons[currentX][currentY]->setChecked(false);
-	currentPositionSet(-1, -1);
-	checkWrongAndShow(1);
+    checkWrongAndShow(1);
 }
 
 void Sudoku_GUI::pressMenuButtonSave() {
